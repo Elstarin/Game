@@ -8,9 +8,6 @@ class AGameGameMode : public AGameMode
 {
 	GENERATED_BODY()
 
-public:
-	AGameGameMode();
+	public:
+		AGameGameMode();
 };
-
-
-

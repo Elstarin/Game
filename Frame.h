@@ -23,6 +23,11 @@ enum EventEnum
 	SCORE_UPDATE,
 	MOUSE_MOVING,
 	
+	MOUSE_LEFT_CLICK_DOWN,
+	MOUSE_LEFT_CLICK_UP,
+	MOUSE_RIGHT_CLICK_DOWN,
+	MOUSE_RIGHT_CLICK_UP,
+	
 	MOUSE_X_DOWN,
 	MOUSE_X_UP,
 	MOUSE_Y_DOWN,
@@ -303,23 +308,6 @@ enum EventEnum
 	KEY_UP_Section,
 };
 
-// class FrameText
-// {
-//   private:
-//     int32 w, h;
-//     int32 x, y;
-//     int32 r, g, b, a;
-//     int32 scale;
-//     bool shown;
-//     FString type;
-//     FString strata;
-//     FString name;
-//     // Frame* parent;
-//     static int32 count;
-//
-//   public:
-// };
-
 /**
  *
  */
@@ -333,8 +321,6 @@ class GAME_API Frame
 		
 		void Set_MOUSE_ENTER(FuncType func);
 		void Set_MOUSE_EXIT(FuncType func);
-		void Set_MOUSE_CLICKED_DOWN(FuncType func);
-		void Set_MOUSE_CLICKED_UP(FuncType func);
 		void Set_UPDATE(FuncType func);
 		void Set_FRAME_CREATED(FuncType func);
 		void Set_WINDOW_FOCUS_GAINED(FuncType func);
@@ -353,6 +339,10 @@ class GAME_API Frame
 		void Set_MOUSE_SCROLL_UP(FuncType func);
 		void Set_MOUSE_AXIS_DOWN(FuncType func);
 		void Set_MOUSE_AXIS_UP(FuncType func);
+		void Set_MOUSE_LEFT_CLICK_DOWN(FuncType func);
+		void Set_MOUSE_LEFT_CLICK_UP(FuncType func);
+		void Set_MOUSE_RIGHT_CLICK_DOWN(FuncType func);
+		void Set_MOUSE_RIGHT_CLICK_UP(FuncType func);
 		
 		// KEY_DOWN_MouseX,
 		// KEY_UP_MouseX,

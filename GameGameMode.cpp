@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "GameGameMode.h"
 #include "GameCharacter.h"
+#include "MainHUD.h"
 
 AGameGameMode::AGameGameMode()
 {
@@ -12,4 +13,6 @@ AGameGameMode::AGameGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
+	
+	HUDClass = AMainHUD::StaticClass();
 }

@@ -106,20 +106,36 @@ void Frame::Set_MOUSE_EXIT(FuncType func)
     EventMap.Emplace(EventEnum::MOUSE_EXIT, func);
 }
 
-void Frame::Set_MOUSE_CLICKED_DOWN(FuncType func)
+void Frame::Set_MOUSE_LEFT_CLICK_DOWN(FuncType func)
 {
-  if (EventMap.Contains(EventEnum::MOUSE_CLICKED_DOWN))
-    EventMap[EventEnum::MOUSE_CLICKED_DOWN] = func;
+  if (EventMap.Contains(EventEnum::MOUSE_LEFT_CLICK_DOWN))
+    EventMap[EventEnum::MOUSE_LEFT_CLICK_DOWN] = func;
   else
-    EventMap.Emplace(EventEnum::MOUSE_CLICKED_DOWN, func);
+    EventMap.Emplace(EventEnum::MOUSE_LEFT_CLICK_DOWN, func);
 }
 
-void Frame::Set_MOUSE_CLICKED_UP(FuncType func)
+void Frame::Set_MOUSE_LEFT_CLICK_UP(FuncType func)
 {
-  if (EventMap.Contains(EventEnum::MOUSE_CLICKED_UP))
-    EventMap[EventEnum::MOUSE_CLICKED_UP] = func;
+  if (EventMap.Contains(EventEnum::MOUSE_LEFT_CLICK_UP))
+    EventMap[EventEnum::MOUSE_LEFT_CLICK_UP] = func;
   else
-    EventMap.Emplace(EventEnum::MOUSE_CLICKED_UP, func);
+    EventMap.Emplace(EventEnum::MOUSE_LEFT_CLICK_UP, func);
+}
+
+void Frame::Set_MOUSE_RIGHT_CLICK_DOWN(FuncType func)
+{
+  if (EventMap.Contains(EventEnum::MOUSE_RIGHT_CLICK_DOWN))
+    EventMap[EventEnum::MOUSE_RIGHT_CLICK_DOWN] = func;
+  else
+    EventMap.Emplace(EventEnum::MOUSE_RIGHT_CLICK_DOWN, func);
+}
+
+void Frame::Set_MOUSE_RIGHT_CLICK_UP(FuncType func)
+{
+  if (EventMap.Contains(EventEnum::MOUSE_RIGHT_CLICK_UP))
+    EventMap[EventEnum::MOUSE_RIGHT_CLICK_UP] = func;
+  else
+    EventMap.Emplace(EventEnum::MOUSE_RIGHT_CLICK_UP, func);
 }
 
 void Frame::Set_UPDATE(FuncType func)
