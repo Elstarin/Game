@@ -50,17 +50,33 @@ AGameCharacter::AGameCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	/*----------------------------------------------------------------------------
 			Create the projectile object
 	----------------------------------------------------------------------------*/
-	// Create and position a mesh component so we can see where our sphere is
-	UStaticMeshComponent* SphereVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VisualRepresentation"));
-	// SphereVisual->AttachTo(RootComponent);
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereVisualAsset(TEXT("/Game/StarterContent/Shapes/Shape_Sphere.Shape_Sphere"));
-
-	if (SphereVisualAsset.Succeeded())
-	{
-		SphereVisual->SetStaticMesh(SphereVisualAsset.Object);
-		SphereVisual->SetRelativeLocation(FVector(0.0f, 0.0f, -40.0f));
-		SphereVisual->SetWorldScale3D(FVector(0.8f));
-	}
+	// // Use a sphere as a simple collision representation
+	// ProjectileSphere = ObjectInitializer.CreateDefaultSubobject<USphereComponent>(this, TEXT("ProjectileSphere"));
+	// // ProjectileSphere->BodyInstance.SetCollisionProfileName("Projectile");
+	// // ProjectileSphere->OnComponentHit.AddDynamic(this, &AFPSProjectile::OnHit);
+	// ProjectileSphere->InitSphereRadius(15.0f);
+	// // RootComponent = ProjectileSphere;
+	//
+	// // Create and position a mesh component so we can see where our sphere is
+	// UStaticMeshComponent* SphereVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereVisual"));
+	// SphereVisual->AttachTo(ProjectileSphere);
+	// static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereVisualAsset(TEXT("/Game/StarterContent/Shapes/Shape_Sphere.Shape_Sphere"));
+	//
+	// if (SphereVisualAsset.Succeeded())
+	// {
+	// 	SphereVisual->SetStaticMesh(SphereVisualAsset.Object);
+	// 	SphereVisual->SetRelativeLocation(FVector(0.0f, 0.0f, -80.0f));
+	// 	// SphereVisual->SetWorldScale3D(FVector(0.8f));
+	// }
+	//
+	// // Use a ProjectileMovementComponent to govern this projectile's movement
+	// ProjectileMovement = ObjectInitializer.CreateDefaultSubobject<UProjectileMovementComponent>(this, TEXT("ProjectileComp"));
+	// ProjectileMovement->UpdatedComponent = ProjectileSphere;
+	// ProjectileMovement->InitialSpeed = 3000.f;
+	// ProjectileMovement->MaxSpeed = 3000.f;
+	// ProjectileMovement->bRotationFollowsVelocity = true;
+	// ProjectileMovement->bShouldBounce = true;
+	// ProjectileMovement->Bounciness = 0.5f;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -154,9 +170,43 @@ void AGameCharacter::MoveRight(float Value)
 	}
 }
 
+void AGameCharacter::InitVelocity(const FVector& ShootDirection)
+{
+	if (ProjectileMovement)
+	{
+		// set the projectile's velocity to the desired direction
+		ProjectileMovement->Velocity = ShootDirection * ProjectileMovement->InitialSpeed;
+	}
+}
+
 void AGameCharacter::OnLeftMouseButtonDown()
 {
 	print("Left mouse DOWN");
+	
+	// Get the camera transform
+	FVector CameraLoc;
+	FRotator CameraRot;
+	GetActorEyesViewPoint(CameraLoc, CameraRot);
+	// // MuzzleOffset is in camera space, so transform it to world space before offsetting from the camera to find the final muzzle position
+	// FVector const MuzzleLocation = CameraLoc + FTransform(CameraRot).TransformVector(MuzzleOffset);
+	
+	UWorld* const World = GetWorld();
+	
+	// if (World)
+	// {
+	// 	FActorSpawnParameters SpawnParams;
+	// 	SpawnParams.Owner = this;
+	// 	SpawnParams.Instigator = Instigator;
+	//
+	// 	// Spawn the projectile at the muzzle
+	// 	ProjectileSphere* const Projectile = World->SpawnActor<ProjectileSphere>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
+	// 	if (Projectile)
+	// 	{
+	// 		// find launch direction
+	// 		FVector const LaunchDir = MuzzleRotation.Vector();
+	// 		Projectile->InitVelocity(LaunchDir);
+	// 	}
+	// }
 	
 	// // try and fire a projectile
 	// if (ProjectileClass != NULL)
@@ -201,4 +251,22 @@ void AGameCharacter::OnRightMouseButtonDown()
 void AGameCharacter::OnRightMouseButtonUp()
 {
 	print("Right mouse UP");
+}
+
+void AGameCharacter::OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	// // If it exists and isn't itself
+	// if (OtherActor && (OtherActor != this) && (OtherComp != nullptr)){
+	// 	// Trigger explosion on impact
+	// 	if (ParticleEffectCompImpact && ParticleEffectCompImpact->Template)
+	// 	{
+	// 		ParticleEffectCompImpact->ToggleActive();
+	// 	}
+	//
+	// 	// If it has physics (AKA can we push it back?)
+	// 	if (OtherComp->IsSimulatingPhysics())
+	// 	{
+	// 		OtherComp->AddImpulseAtLocation(ProjectileMovement->Velocity * 100.0f, Hit.ImpactPoint);
+	// 	}
+	// }
 }

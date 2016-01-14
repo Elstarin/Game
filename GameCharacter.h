@@ -16,9 +16,11 @@ class AGameCharacter : public ACharacter
 		/** Follow camera */
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FollowCamera;
+
+		/** Projectile sphere */
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Projectile, meta = (AllowPrivateAccess = "true"))
+		class USphereComponent* ProjectileSphere;
 	public:
-		// AGameCharacter();
-		
 		// Constructor for AFPSCharacter
 		AGameCharacter(const FObjectInitializer& ObjectInitializer);
 
@@ -29,9 +31,22 @@ class AGameCharacter : public ACharacter
 		/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 		float BaseLookUpRate;
+		
+		// Projectile movement component
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Movement)
+		UProjectileMovementComponent* ProjectileMovement;
 
+		// called when projectile hits something
+		UFUNCTION()
+		void OnHit(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+				
+		// Gun muzzle's offset from the camera location
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
+		FVector MuzzleOffset;
+
+		// inits velocity of the projectile in the shoot direction
+		void InitVelocity(const FVector& ShootDirection);
 	protected:
-
 		/** Called for forwards/backward input */
 		void MoveForward(float Value);
 
@@ -69,7 +84,7 @@ class AGameCharacter : public ACharacter
 
 	public:
 		/** Returns CameraBoom subobject **/
-		FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+		FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; };
 		/** Returns FollowCamera subobject **/
-		FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+		FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; };
 };

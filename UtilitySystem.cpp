@@ -208,7 +208,7 @@ void UtilitySystem::finishPrint(FString str)
   str.Trim();
   str.Shrink();
   FStrPrintArray.Emplace(str);
-};
+}
 
 inline FString convert(){
   return "NONE";
