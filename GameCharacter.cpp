@@ -9,9 +9,6 @@
 
 AGameCharacter::AGameCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	auto PlayerFrame = Frame::CreateFrame("Actor", "PlayerFrame", "BACKGROUND", 0);
-	PlayerFrame->Hide();
-	
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
@@ -51,6 +48,11 @@ AGameCharacter::AGameCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	MagicClass = AMagic::StaticClass();
 	
 	MuzzleOffset = FVector(80.0f, 0.0f, -30.0f);
+	
+	auto PlayerFrame = Frame::CreateFrame("Actor", "PlayerFrame", "BACKGROUND", 0);
+	PlayerFrame->Hide();
+	
+	print("Char constructor");
 }
 
 void AGameCharacter::PostInitializeComponents()
