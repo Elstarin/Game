@@ -5,6 +5,9 @@
 #include <functional>
 #include <memory>
 
+// template <typename T>
+// using TestFuncType = std::function<void(T&)>;
+
 enum EventEnum
 {
 	MOUSE_ENTER,

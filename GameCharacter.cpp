@@ -4,13 +4,23 @@
 #include "GameCharacter.h"
 #include "Magic.h"
 
-//////////////////////////////////////////////////////////////////////////
-// AGameCharacter
+/*------------------------------------------------------------------------------
+		Possible talents/perks
+		
+		~ Arrows a slight trail/trace
+		~ Passively increased health/resource regen
+		~ Melee weapons can sweep through all targets?
+------------------------------------------------------------------------------*/
 
+/*------------------------------------------------------------------------------
+		Main constructor
+------------------------------------------------------------------------------*/
 AGameCharacter::AGameCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AGameCharacter::OnOverlapBegin);
+	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &AGameCharacter::OnOverlapEnd);
 
 	// set our turn rates for input
 	BaseTurnRate = 45.f;
@@ -68,9 +78,8 @@ void AGameCharacter::PostInitializeComponents()
 	
 	// AMagic* MagicClass;
 }
-
 /*------------------------------------------------------------------------------
-		Player mouse/keyboard input
+		Player input constructor
 ------------------------------------------------------------------------------*/
 void AGameCharacter::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 {
@@ -104,7 +113,9 @@ void AGameCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompo
 	InputComponent->BindAction("ZoomIn", IE_Pressed, this, &AGameCharacter::ZoomIn);
 	InputComponent->BindAction("ZoomOut", IE_Pressed, this, &AGameCharacter::ZoomOut);
 };
-
+/*------------------------------------------------------------------------------
+		Look/turn input
+------------------------------------------------------------------------------*/
 void AGameCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
 {
 	// jump, but only on the first touch
@@ -122,23 +133,6 @@ void AGameCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Locatio
 	}
 }
 
-void AGameCharacter::Tick(float DeltaTime)
-{
-	// //Rotate our actor's yaw, which will turn our camera because we're attached to it
-  // FRotator NewRotation = GetActorRotation();
-  // NewRotation.Yaw += CameraInput.X;
-  // SetActorRotation(NewRotation);
-	
-	FRotator ActorRotation = GetActorRotation();
-	
-	//Rotate our camera's pitch, but limit it so we're always looking downward
-  FRotator NewRotation = CameraBoom->GetComponentRotation();
-  NewRotation.Pitch = ActorRotation.Pitch;
-  // NewRotation.Pitch = FMath::Clamp(NewRotation.Pitch + CameraInput.Y, -80.0f, -15.0f);
-	SetActorRotation(NewRotation);
-  // CameraBoom->SetWorldRotation(NewRotation);
-}
-
 void AGameCharacter::TurnAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
@@ -150,7 +144,9 @@ void AGameCharacter::LookUpAtRate(float Rate)
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
-
+/*------------------------------------------------------------------------------
+		Movement input
+------------------------------------------------------------------------------*/
 void AGameCharacter::MoveForward(float Value)
 {
 	if ((Controller != NULL) && (Value != 0.0f))
@@ -179,7 +175,9 @@ void AGameCharacter::MoveRight(float Value)
 		AddMovementInput(Direction, Value);
 	}
 }
-
+/*------------------------------------------------------------------------------
+		Mouse input
+------------------------------------------------------------------------------*/
 void AGameCharacter::OnLeftMouseButtonDown()
 {
 	// Make sure it has been initialized
@@ -283,25 +281,9 @@ void AGameCharacter::OnRightMouseButtonUp()
 {
 	// print("Right mouse UP");
 }
-
-void AGameCharacter::OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	// // If it exists and isn't itself
-	// if (OtherActor && (OtherActor != this) && (OtherComp != nullptr)){
-	// 	// Trigger explosion on impact
-	// 	if (ParticleEffectCompImpact && ParticleEffectCompImpact->Template)
-	// 	{
-	// 		ParticleEffectCompImpact->ToggleActive();
-	// 	}
-	//
-	// 	// If it has physics (AKA can we push it back?)
-	// 	if (OtherComp->IsSimulatingPhysics())
-	// 	{
-	// 		OtherComp->AddImpulseAtLocation(ProjectileMovement->Velocity * 100.0f, Hit.ImpactPoint);
-	// 	}
-	// }
-}
-
+/*------------------------------------------------------------------------------
+		Zoom in/out
+------------------------------------------------------------------------------*/
 void AGameCharacter::ZoomIn()
 {
 	ZoomFactor += 0.5f;
@@ -327,3 +309,60 @@ void AGameCharacter::ZoomOut()
 	// FollowCamera->FieldOfView = FMath::Lerp<float>(90.0f, 60.0f, ZoomFactor);
 	CameraBoom->TargetArmLength = FMath::Lerp<float>(400.0f, 300.0f, ZoomFactor);
 }
+/*------------------------------------------------------------------------------
+		Tick
+------------------------------------------------------------------------------*/
+void AGameCharacter::Tick(float DeltaTime)
+{
+	// //Rotate our actor's yaw, which will turn our camera because we're attached to it
+  // FRotator NewRotation = GetActorRotation();
+  // NewRotation.Yaw += CameraInput.X;
+  // SetActorRotation(NewRotation);
+	
+	FRotator ActorRotation = GetActorRotation();
+	
+	//Rotate our camera's pitch, but limit it so we're always looking downward
+  FRotator NewRotation = CameraBoom->GetComponentRotation();
+  NewRotation.Pitch = ActorRotation.Pitch;
+  // NewRotation.Pitch = FMath::Clamp(NewRotation.Pitch + CameraInput.Y, -80.0f, -15.0f);
+	SetActorRotation(NewRotation);
+  // CameraBoom->SetWorldRotation(NewRotation);
+}
+/*------------------------------------------------------------------------------
+		Events
+------------------------------------------------------------------------------*/
+void AGameCharacter::OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	// // If it exists and isn't itself
+	// if (OtherActor && (OtherActor != this) && (OtherComp != nullptr)){
+	// 	// Trigger explosion on impact
+	// 	if (ParticleEffectCompImpact && ParticleEffectCompImpact->Template)
+	// 	{
+	// 		ParticleEffectCompImpact->ToggleActive();
+	// 	}
+	//
+	// 	// If it has physics (AKA can we push it back?)
+	// 	if (OtherComp->IsSimulatingPhysics())
+	// 	{
+	// 		OtherComp->AddImpulseAtLocation(ProjectileMovement->Velocity * 100.0f, Hit.ImpactPoint);
+	// 	}
+	// }
+}
+
+void AGameCharacter::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	print("Overlap begin");
+  if (OtherActor && (OtherActor != this) && OtherComp)
+  {
+    // PointLight->SetVisibility(true);
+  }
+};
+
+void AGameCharacter::OnOverlapEnd(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	print("Overlap end");
+  if (OtherActor && (OtherActor != this) && OtherComp)
+  {
+		// PointLight->SetVisibility(false);
+  }
+};

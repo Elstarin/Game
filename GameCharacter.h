@@ -47,6 +47,12 @@ class AGameCharacter : public ACharacter
 		// called when projectile hits something
 		UFUNCTION()
 		void OnHit(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+		
+		UFUNCTION()
+		void OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		
+		UFUNCTION()
+		void OnOverlapEnd(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 				
 		// Gun muzzle's offset from the camera location
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)

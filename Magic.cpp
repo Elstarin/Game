@@ -180,7 +180,7 @@ void AMagic::BeginPlay()
 	
 	frame->OnUpdate([&](auto f)
 	{
-		print("Lambda", GetActorLocation());
+		// print("Lambda", GetActorLocation());
 		// GetActorLocation();
 	});
 }

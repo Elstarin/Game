@@ -10,7 +10,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "UtilitySystem.h"
 #include "TimerSystem.h"
-// #include <functional>
 
 // void AMainHUD::DrawHUD(){
 //   Super::DrawHUD();
@@ -328,6 +327,24 @@ void AMainHUD::DrawPrintBox()
 	// DrawJoyRect(Canvas->SizeX / 2 - 100, Canvas->SizeY / 2 - 50, 200, 100, FLinearColor(0, 0, 1, 0.2333));
 }
 
+// template <typename T, typename... A>
+// using TestFuncType = std::function<void(Frame*, ...)>;
+// using TestFuncType = std::function<void(...)>;
+// typedef std::function<void(Frame*)> TestFuncType;
+
+struct CallbackArgs
+{
+  FString event = "TEST_EVENT";
+  // const char* event = "TEST_EVENT";
+  
+  CallbackArgs(){print("Args constructed");}
+  ~CallbackArgs(){print("Args destroyed");}
+};
+
+typedef std::function<void(Frame*, CallbackArgs*)> TestFuncType;
+// typedef std::function<void(Frame*, std::unique_ptr<CallbackArgs>)> TestFuncType;
+// typedef std::function<void(Frame*)> TestFuncType;
+
 void AMainHUD::Startup()
 {
   static bool hasRun = false;
@@ -369,6 +386,32 @@ void AMainHUD::Startup()
   // f2->SetColor(0, 0, 0, 1);
   //
   // f2->SetPoint(Anchors::BOTTOMRIGHT, f1, Anchors::BOTTOMRIGHT, 0, 0);
+  
+  // auto lambda = [&](auto f, auto args)
+  // {
+  //   // print(args.event);
+  // };
+  
+  auto lambda = [&](auto f, auto args)
+  {
+    print("Called");
+  };
+  
+  // TestFuncType temp;
+  
+  // CallbackArgs args;
+  // print("Size:", sizeof(temp), sizeof(lambda), sizeof(args));
+  // temp(f1, args);
+  
+  TimerSystem::SetTicker(0.5, [&](auto ticker)
+  {
+    static TestFuncType temp = lambda;
+    CallbackArgs* args = new CallbackArgs();
+    
+    temp(f1, args);
+    
+    delete args;
+  });
 }
 
 void AMainHUD::CheckMouseoverFrames(Frame* f, int32 left, int32 right, int32 top, int32 bottom)

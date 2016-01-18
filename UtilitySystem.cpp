@@ -171,25 +171,24 @@ void UtilitySystem::profileCode(UWorld* const World)
 
   if (false) // Toggle this to easily disable profiling
   {
-    CreateFrameList();
+    // CreateFrameList();
     
-    TimerSystem::SetTimer(1, [](){
+    TimerSystem::SetLightTimer(1, [](){
       int32 loopNum = 1;
       // loopNum = 100;
       // loopNum = 1000; // 1k
       // loopNum = 10000; // 10k
-      loopNum = 100000; // 100k
+      // loopNum = 100000; // 100k
       // loopNum = 500000; // 500k
       // loopNum = 1000000; // 1m
       // loopNum = 10000000; // 10m
-      // loopNum = 100000000; // 100m
-      
+      loopNum = 100000000; // 100m
       
       // Code to test
       double start = TimerSystem::GetTime();
       for (int32 i = 1; i <= loopNum; i++)
       {
-        Frame::Fire(EventEnum::GAME_PAUSE);
+        // Frame::Fire(EventEnum::GAME_PAUSE);
       }
       double stop = TimerSystem::GetTime();
       

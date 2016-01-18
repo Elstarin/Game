@@ -33,10 +33,21 @@ inline int64 TimerSystem::GetTodayTicks()
   return FDateTime::Now().GetTimeOfDay().GetTicks();
 }
 
+TArray<TimerSystem::LightTimerStruct*> TimerSystem::LightTimerList;
 TArray<TimerSystem::TimerStruct*> TimerSystem::TimerList;
 TArray<TimerSystem::TickerStruct*> TimerSystem::TickerList;
 
-void TimerSystem::SetTimer(double time, void (*func)())
+void TimerSystem::SetLightTimer(double time, void (*func)())
+{
+  LightTimerStruct* timer = new LightTimerStruct();
+  
+  timer->remaining = time + GetTime();
+  timer->callback = func;
+  
+  LightTimerList.Emplace(timer);
+}
+
+void TimerSystem::SetTimer(double time, CallbackType func)
 {
   TimerStruct* timer = new TimerStruct();
   
@@ -46,22 +57,22 @@ void TimerSystem::SetTimer(double time, void (*func)())
   TimerList.Emplace(timer);
 }
 
-void TimerSystem::SetTicker(double time, void (*func)(), int32 numTicks)
-{
-  TickerStruct* ticker = new TickerStruct();
-
-  ticker->current = time + GetTime();
-  ticker->interval = time;
-  ticker->callback = func;
-  ticker->ticks = numTicks; // Defaults to -1, which means it won't automatically stop
-  ticker->cancelled = false;
-  ticker->arg = false;
-
-  TickerList.Emplace(ticker);
-}
+// void TimerSystem::SetTicker(double time, std::function<void()> func, int32 numTicks)
+// {
+//   TickerStruct* ticker = new TickerStruct();
+//
+//   ticker->current = time + GetTime();
+//   ticker->interval = time;
+//   ticker->callback = func;
+//   ticker->ticks = numTicks; // Defaults to -1, which means it won't automatically stop
+//   ticker->cancelled = false;
+//   ticker->arg = false;
+//
+//   TickerList.Emplace(ticker);
+// }
 
 // Overload function that will pass the ticker
-void TimerSystem::SetTicker(double time, void (*func)(TickerStruct*), int32 numTicks)
+void TimerSystem::SetTicker(double time, std::function<void(TickerStruct*)> func, int32 numTicks)
 {
   TickerStruct* ticker = new TickerStruct();
 
@@ -78,6 +89,17 @@ void TimerSystem::SetTicker(double time, void (*func)(TickerStruct*), int32 numT
 void TimerSystem::IterateTimerArrays()
 {
   auto cTime = GetTime(); // Time since game started
+  
+  // Run through every timer backwards
+  for (int32 i = LightTimerList.Num() - 1; i >= 0; --i)
+  {
+    if (cTime >= LightTimerList[i]->remaining) // Timer is up
+    {
+      LightTimerList[i]->callback(); // Call its function
+      delete LightTimerList[i];
+      LightTimerList.RemoveAtSwap(i); // Swap because I don't care about the order
+    }
+  }
   
   // Run through every timer backwards
   for (int32 i = TimerList.Num() - 1; i >= 0; --i)
@@ -102,7 +124,7 @@ void TimerSystem::IterateTimerArrays()
     {
       // Call its function
       if (TickerList[i]->arg) TickerList[i]->callbackArg(TickerList[i]);
-      else TickerList[i]->callback();
+      // else TickerList[i]->callback();
 
       TickerList[i]->current += TickerList[i]->interval; // Set it for the next tick
       TickerList[i]->ticks--; // Take 1 off its remaining ticks
