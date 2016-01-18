@@ -1,9 +1,10 @@
 // Copyright 1998-2015 Epic Games, Inc. All Rights Reserved.
 #pragma once
 #include "GameFramework/Character.h"
+#include "Magic.h"
 #include "GameCharacter.generated.h"
 
-UCLASS(config=Game)
+UCLASS() // config=Game
 class AGameCharacter : public ACharacter
 {
 	GENERATED_BODY()
@@ -23,6 +24,13 @@ class AGameCharacter : public ACharacter
 	public:
 		// Constructor for AFPSCharacter
 		AGameCharacter(const FObjectInitializer& ObjectInitializer);
+		
+		virtual void PostInitializeComponents() override;
+		virtual void Tick(float DeltaTime) override;
+
+		/** In first person mode? */
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Gameplay)
+		bool bFirstPersonMode;
 
 		/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
@@ -43,9 +51,18 @@ class AGameCharacter : public ACharacter
 		// Gun muzzle's offset from the camera location
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
 		FVector MuzzleOffset;
-
-		// inits velocity of the projectile in the shoot direction
-		void InitVelocity(const FVector& ShootDirection);
+		
+		// // Spell class to spawn
+		// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Magic)
+		// AMagic* magic;
+		
+		// Spell class to spawn
+		// UPROPERTY(EditDefaultsOnly, Category=Magic)
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Magic)
+		TSubclassOf<class AMagic> MagicClass;
+		
+		// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Magic)
+		// AMagic* MagicClass;
 	protected:
 		/** Called for forwards/backward input */
 		void MoveForward(float Value);
@@ -76,6 +93,18 @@ class AGameCharacter : public ACharacter
 		void OnLeftMouseButtonUp();
 		void OnRightMouseButtonDown();
 		void OnRightMouseButtonUp();
+		
+		/*--------------------------------------------------------------------------
+				Camera zoom stuff
+		--------------------------------------------------------------------------*/
+		//Input variables
+		FVector2D MovementInput;
+		FVector2D CameraInput;
+		float ZoomFactor;
+		
+		void ZoomIn();
+		void ZoomOut();
+		
 
 	protected:
 		// APawn interface

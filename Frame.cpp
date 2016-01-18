@@ -30,6 +30,8 @@ Frame::Frame()
   name = "Frame_" + FString::FromInt(count);
   // Frame* parent;
   
+  bMouseEnabled = false;
+  
   // TMap<EventEnum, FuncType> EventMap;
   // EventMap.Emplace(EventEnum::UPDATE, UPDATE);
   
@@ -38,6 +40,24 @@ Frame::Frame()
 
 Frame::~Frame()
 {
+  // FrameList.Remove(this);
+  // this->OnUpdate(); // Set it to nullptr
+  // for (auto& f : FrameList) // Iterate through every frame
+  // {
+  //   if (f == nullptr)
+  //   {
+  //
+  //   }
+  // }
+}
+
+void Frame::DeleteFrame()
+{
+  // Take it out of the frame list
+  FrameList.Remove(this);
+  FrameList.Shrink();
+  this->OnUpdate(); // Set it to nullptr
+  
 }
 
 class FrameActor : public Frame
@@ -286,13 +306,16 @@ void Frame::Set_MOUSE_AXIS_UP(FuncType func)
 ------------------------------------------------------------------------------*/
 void Frame::OnUpdate(FuncType func)
 {
-  ScriptStruct script;
-  script.frame = this;
-  script.function = func;
+  // Defaults to nullptr if not supplied
   
-  OnUpdateList.Emplace(script);
+  // ScriptStruct script;
+  // script.frame = this;
+  // script.function = func;
+  //
+  // OnUpdateList.Emplace(script);
+  
+  OnUpdateFunc = func;
 }
-
 /*------------------------------------------------------------------------------
     Get functions
 ------------------------------------------------------------------------------*/
@@ -309,10 +332,14 @@ float Frame::GetScale() const {return scale;}
 int32 Frame::GetLevel() const {return level;}
 bool Frame::IsShown() const {return shown;}
 bool Frame::GetMouseOver() const {return mouseOver;}
+bool Frame::GetMouseEnabled() const {return bMouseEnabled;}
 FString Frame::GetType() const {return type;}
 FString Frame::GetStrata() const {return strata;}
 FString Frame::GetName() const {return name;}
 Frame* Frame::GetParent() const {return parent;}
+Anchors Frame::GetAnchorPoint() const {return anchorPoint;}
+Frame* Frame::GetRelativeFrame() const {return relativeTo;}
+Anchors Frame::GetRelativePoint() const {return relativePoint;}
 // Frame& Frame::GetPtr(){return *f;}
 /*------------------------------------------------------------------------------
     END get functions
@@ -334,6 +361,7 @@ void Frame::SetName(FString nName){name = nName;}
 void Frame::SetType(FString nType){type = nType;}
 void Frame::SetShown(bool nVisibility){shown = nVisibility;}
 void Frame::SetMouseOver(bool nMouseOver){mouseOver = nMouseOver;}
+void Frame::SetMouseEnabled(bool nMouseEnabled){bMouseEnabled = nMouseEnabled;}
 
 void Frame::SetColor(float nR, float nG, float nB, float nA)
 {
@@ -399,6 +427,15 @@ void Frame::SetStrata(FString nStrata)
 void Frame::SetParent(Frame* nParent)
 {
   parent = nParent;
+}
+
+void Frame::SetPoint(Anchors nAnchor, Frame* nRelativeTo, Anchors nRelative, float nX, float nY)
+{
+  anchorPoint = nAnchor; // Defaults to CENTER
+  relativeTo = nRelativeTo; // Defaults to nullptr
+  relativePoint = nRelative; // Defaults to CENTER
+  x = nX; // Defaults to 0
+  y = nY; // Defaults to 0
 }
 /*------------------------------------------------------------------------------
     END Set functions
@@ -617,10 +654,10 @@ void Frame::Fire(EventEnum event)
 
 void Frame::IterateOnUpdateList()
 {
-  // for (int32 i = 0; i < OnUpdateList.Num(); i++)
-  // {
-  //   OnUpdateList[i].function(OnUpdateList[i].frame);
-  // }
+  for (auto& script : OnUpdateList)
+  {
+    script.function(script.frame);
+  }
 }
 
 Frame* Frame::CreateFrame(
@@ -629,8 +666,20 @@ Frame* Frame::CreateFrame(
   FString nStrata = "BACKGROUND",
   int32 nLevel = 0)
 {
+  // std::unique_ptr<Frame*> f;
   Frame* f; // The variable to hold the new frame
+  // Frame test; // The variable to hold the new frame
+  // std::unique_ptr<Frame> test(new Frame);
   
+  // if (nType == "") // Type wasn't given, default to basic frame
+  //   std::unique_ptr<Frame*> f(new Frame);
+  // else if (nType == "2D") // A 2D frame for the flat user interface
+  //   std::unique_ptr<Frame*> f(new Frame2D);
+  // else if (nType == "3D") // A 3D frame for displaying in the game world
+  //   std::unique_ptr<Frame*> f(new Frame3D);
+  // else if (nType == "Actor") // A frame to hook to an actor for events? I dunno
+  //   std::unique_ptr<Frame*> f(new FrameActor);
+
   if (nType == "") // Type wasn't given, default to basic frame
     f = new Frame();
   else if (nType == "2D") // A 2D frame for the flat user interface
@@ -668,4 +717,28 @@ Frame* Frame::CreateFrame(
   StrataMap[f->strata].LevelMap[f->level].FrameList.Emplace(f); // Store it
 
   return f;
+}
+
+Frame::TextureWidget* Frame::CreateTexture()
+{
+  TextureWidget* texture = new TextureWidget; // Create the texture object
+  TextureList.Emplace(texture); // Add the new texture to the list to draw
+  
+  return texture;
+}
+
+Frame::TextWidget* Frame::CreateText()
+{
+  TextWidget* text = new TextWidget; // Create the text object
+  TextList.Emplace(text); // Add the new text to the list to draw
+  
+  text->SetText("Some text!");
+  text->SetOutline(false);
+  text->SetWrap(false);
+  text->SetLineSpacing(10);
+  text->Show();
+  
+  print("Creating text object.");
+  
+  return text;
 }

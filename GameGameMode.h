@@ -7,7 +7,10 @@ UCLASS(minimalapi)
 class AGameGameMode : public AGameMode
 {
 	GENERATED_BODY()
-
+	
+	private:
+		virtual void StartPlay() override;
+		virtual void Tick(float DeltaSeconds) override;
 	public:
 		AGameGameMode();
 };

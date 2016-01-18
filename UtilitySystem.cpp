@@ -171,6 +171,8 @@ void UtilitySystem::profileCode(UWorld* const World)
 
   if (false) // Toggle this to easily disable profiling
   {
+    CreateFrameList();
+    
     TimerSystem::SetTimer(1, [](){
       int32 loopNum = 1;
       // loopNum = 100;
@@ -181,6 +183,7 @@ void UtilitySystem::profileCode(UWorld* const World)
       // loopNum = 1000000; // 1m
       // loopNum = 10000000; // 10m
       // loopNum = 100000000; // 100m
+      
       
       // Code to test
       double start = TimerSystem::GetTime();
@@ -208,107 +211,4 @@ void UtilitySystem::finishPrint(FString str)
   str.Trim();
   str.Shrink();
   FStrPrintArray.Emplace(str);
-}
-
-inline FString convert(){
-  return "NONE";
-}
-
-inline FString convert(FString x){
-  return x;
-}
-
-inline FString* convert(FString* x){
-  return x;
-}
-
-inline FString convert(const char* x){
-	return x;
-}
-
-// inline FString convert(std::string x){
-//   return x.c_str();
-// }
-
-inline FString convert(bool x){
-	if (x){
-		return TEXT("true");
-	} else {
-		return TEXT("false");
-	}
-}
-
-inline FString convert(int32 x){
-  return FString::FromInt(x);
-}
-
-inline FString convert(int8 x){
-  return FString::FromInt(x);
-}
-
-inline FString convert(int16 x){
-  return FString::FromInt(x);
-}
-
-inline FString convert(int64 x){
-  return FString::FromInt(x);
-}
-
-inline FString convert(uint8 x){
-  return FString::FromInt(x);
-}
-
-inline FString convert(uint16 x){
-  return FString::FromInt(x);
-}
-
-inline FString convert(uint32 x){
-  return FString::FromInt(x);
-}
-
-inline FString convert(uint64 x){
-  return FString::FromInt(x);
-}
-
-inline FString convert(double x){
-  return FString::SanitizeFloat(x);
-}
-
-inline FString convert(float x){
-  return FString::SanitizeFloat(x);
-}
-
-inline FString convert(FVector x){
-  return x.ToString();
-}
-
-inline FString convert(FVector2D x){
-  return x.ToString();
-}
-
-inline FString convert(FRotator x){
-  return x.ToString();
-}
-
-inline FString convert(FLinearColor x){
-  return x.ToString();
-}
-
-inline FString convert(UObject x){
-  return x.GetName();
-}
-
-inline FString convert(AActor x)
-{
-  return x.GetName();
-}
-
-inline FString convert(AActor* x)
-{
-  return x->GetName();
-}
-
-inline FString convert(void* x)
-{
-  return "Pointer: " + FString::Printf(TEXT("%d"), x);
 }

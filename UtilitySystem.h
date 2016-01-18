@@ -70,56 +70,153 @@ class GAME_API UtilitySystem : public UObject
 /*------------------------------------------------------------------------------
 		Convert to FString overload functions
 ------------------------------------------------------------------------------*/
-extern inline FString convert();
-extern inline FString convert(FString x);
-extern inline FString* convert(FString* x);
-extern inline FString convert(const char* x);
-// extern inline FString convert(std::string x);
-extern inline FString convert(bool x);
-extern inline FString convert(int32 x);
-extern inline FString convert(int8 x);
-extern inline FString convert(int16 x);
-extern inline FString convert(int64 x);
-extern inline FString convert(uint8 x);
-extern inline FString convert(uint16 x);
-extern inline FString convert(uint32 x);
-extern inline FString convert(uint64 x);
-extern inline FString convert(double x);
-extern inline FString convert(float x);
-extern inline FString convert(FVector x);
-extern inline FString convert(FVector2D x);
-extern inline FString convert(FRotator x);
-extern inline FString convert(FLinearColor x);
-extern inline FString convert(UObject x);
-extern inline FString convert(AActor x);
-extern inline FString convert(AActor* x);
-extern inline FString convert(void* x);
+namespace // Unnamed namespace
+{
+  inline FString convert(){
+    return "NONE";
+  }
+
+  inline FString convert(FString x){
+    return x;
+  }
+
+  inline FString* convert(FString* x){
+    return x;
+  }
+
+  inline FString convert(const char* x){
+  	return x;
+  }
+
+  // inline FString convert(std::string x){
+  //   return x.c_str();
+  // }
+
+  inline FString convert(bool x){
+  	if (x){
+  		return TEXT("true");
+  	} else {
+  		return TEXT("false");
+  	}
+  }
+
+  inline FString convert(int32 x){
+    return FString::FromInt(x);
+  }
+
+  inline FString convert(int8 x){
+    return FString::FromInt(x);
+  }
+
+  inline FString convert(int16 x){
+    return FString::FromInt(x);
+  }
+
+  inline FString convert(int64 x){
+    return FString::FromInt(x);
+  }
+
+  inline FString convert(uint8 x){
+    return FString::FromInt(x);
+  }
+
+  inline FString convert(uint16 x){
+    return FString::FromInt(x);
+  }
+
+  inline FString convert(uint32 x){
+    return FString::FromInt(x);
+  }
+
+  inline FString convert(uint64 x){
+    return FString::FromInt(x);
+  }
+
+  inline FString convert(double x){
+    return FString::SanitizeFloat(x);
+  }
+
+  inline FString convert(float x){
+    return FString::SanitizeFloat(x);
+  }
+
+  inline FString convert(FVector x){
+    return x.ToString();
+  }
+
+  inline FString convert(FVector2D x){
+    return x.ToString();
+  }
+
+  inline FString convert(FRotator x){
+    return x.ToString();
+  }
+
+  inline FString convert(FLinearColor x){
+    return x.ToString();
+  }
+
+  inline FString convert(UObject x){
+    return x.GetName();
+  }
+
+  inline FString convert(AActor x)
+  {
+    return x.GetName();
+  }
+
+  inline FString convert(AActor* x)
+  {
+    return x->GetName();
+  }
+
+  inline FString convert(void* x)
+  {
+    return "Pointer: " + FString::Printf(TEXT("%d"), x);
+  }
+}
+
+// extern inline FString convert();
+// extern inline FString convert(FString x);
+// extern inline FString* convert(FString* x);
+// extern inline FString convert(const char* x);
+// // extern inline FString convert(std::string x);
+// extern inline FString convert(bool x);
+// extern inline FString convert(int32 x);
+// extern inline FString convert(int8 x);
+// extern inline FString convert(int16 x);
+// extern inline FString convert(int64 x);
+// extern inline FString convert(uint8 x);
+// extern inline FString convert(uint16 x);
+// extern inline FString convert(uint32 x);
+// extern inline FString convert(uint64 x);
+// extern inline FString convert(double x);
+// extern inline FString convert(float x);
+// extern inline FString convert(FVector x);
+// extern inline FString convert(FVector2D x);
+// extern inline FString convert(FRotator x);
+// extern inline FString convert(FLinearColor x);
+// extern inline FString convert(UObject x);
+// extern inline FString convert(AActor x);
+// extern inline FString convert(AActor* x);
+// extern inline FString convert(void* x);
 
 static FString printStr;
 
 template <typename T>
-void print(T value){
+void print(T value)
+{
   printStr += convert(value);
 	
 	UtilitySystem::finishPrint(printStr);
-	
-  // GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, *(printStr + "\n"));
-	
-	// Add the FString to the TArray
-	// FStrPrintArray.Emplace(printStr);
-	
-	// // Add the timer to the TArray
-	// printTimerArray.Emplace(15.f);
 
 	// Empty the FString
 	printStr.Reset();
 }
 
 template <typename T, typename... Args>
-void print(T value, Args... args){ // Recursive variadic function
-  // static const unsigned short int32 size = sizeof...(Arguments);
-  // <Args...>::name()
-
+void print(T value, Args... args) // Recursive variadic function
+{
 	// Catch each value and store it up in printStr
   printStr += (convert(value) + FString(" "));
 

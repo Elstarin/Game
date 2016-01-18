@@ -3,6 +3,7 @@
 #pragma once
 
 #include <functional>
+#include <memory>
 
 enum EventEnum
 {
@@ -308,6 +309,19 @@ enum EventEnum
 	KEY_UP_Section,
 };
 
+enum Anchors
+{
+	TOPLEFT,
+	TOP,
+	TOPRIGHT,
+	LEFT,
+	CENTER,
+	RIGHT,
+	BOTTOMLEFT,
+	BOTTOM,
+	BOTTOMRIGHT,
+};
+
 /**
  *
  */
@@ -315,7 +329,9 @@ class GAME_API Frame
 {
 	// Sockets
 	private:
-		typedef void (*FuncType)(Frame*);
+		// typedef void (*FuncType)(Frame*);
+		// typedef std::unique_ptr<Frame*> Frame*;
+		typedef std::function<void(Frame*)> FuncType;
 	public:
 		TMap<EventEnum, FuncType> EventMap;
 		
@@ -355,19 +371,6 @@ class GAME_API Frame
 		// KEY_DOWN_MouseWheelAxis,
 		// KEY_UP_MouseWheelAxis,
 	private:
-		enum AnchorPoints
-		{
-			TOPLEFT,
-			TOP,
-			TOPRIGHT,
-			LEFT,
-			CENTER,
-			RIGHT,
-			BOTTOMLEFT,
-			BOTTOM,
-			BOTTOMRIGHT,
-		};
-		
 		float w, h;
 		float x, y;
 		float r, g, b, a;
@@ -375,6 +378,7 @@ class GAME_API Frame
 		int32 level;
 		bool shown;
 		bool mouseOver;
+		bool bMouseEnabled;
 		FString type;
 		FString strata;
 		FString name;
@@ -382,11 +386,38 @@ class GAME_API Frame
 		static int32 count;
 		static TArray<Frame*> FrameList; // All frames are stored in here
 		
-		AnchorPoints anchorPoint;
+		Anchors anchorPoint;
 		Frame* relativeTo;
-		AnchorPoints relativePoint;
-		int32 offsetX;
-		int32 offsetY;
+		Anchors relativePoint;
+		float offsetX;
+		float offsetY;
+		
+		class Point
+		{
+			private:
+				Anchors anchorPoint;
+				Frame* relativeFrame;
+				Anchors relativePoint;
+				float offsetX;
+				float offsetY;
+			public:
+				/*----------------------------------------------------------------------
+						Get functions
+				----------------------------------------------------------------------*/
+				inline Anchors GetAnchorPoint() const {return anchorPoint;}
+				inline Frame* GetRelativeFrame(){return relativeFrame;}
+				inline Anchors GetRelativePoint() const {return relativePoint;}
+				inline float GetOffsetX() const {return offsetX;}
+				inline float GetOffsetY() const {return offsetY;}
+				/*----------------------------------------------------------------------
+						Set functions
+				----------------------------------------------------------------------*/
+				inline void SetAnchorPoint(Anchors nAnchorPoint){anchorPoint = nAnchorPoint;}
+				inline void SetRelativeFrame(Frame* nRelativeFrame){relativeFrame = nRelativeFrame;}
+				inline void SetRelativePoint(Anchors nRelativePoint){relativePoint = nRelativePoint;}
+				inline void SetOffsetX(float nOffsetX){offsetX = nOffsetX;}
+				inline void SetOffsetY(float nOffsetY){offsetY = nOffsetY;}
+		};
 		
 		struct Level
 		{
@@ -403,7 +434,48 @@ class GAME_API Frame
 		struct ScriptStruct
 		{
 			Frame* frame;
-			void (*function)(Frame*);
+			// void (*function)(Frame*);
+			FuncType function;
+		};
+		
+		struct TextureWidget
+		{
+		  
+		};
+		
+		struct TextWidget
+		{
+		  private:
+				float w, h;
+				float x, y;
+				float r, g, b, a;
+				Anchors anchorPoint;
+				Frame* relativeTo;
+				Anchors relativePoint;
+				
+		    FString text;
+		    bool outline;
+		    int32 lineSpacing;
+		    bool wrap;
+		    bool shown;
+		  public:
+		    /*--------------------------------------------------------------------------
+		        Get Functions
+		    --------------------------------------------------------------------------*/
+		    FString GetText() const {return text;}
+		    bool GetOutline() const {return outline;}
+		    bool GetWrap() const {return wrap;}
+		    int32 GetNumLines(){return wrap;} // Find the number of \n in the FString
+		    int32 GetLineSpacing() const {return lineSpacing;}
+		    /*--------------------------------------------------------------------------
+		        Set Functions
+		    --------------------------------------------------------------------------*/
+		    void SetText(FString nText){text = nText;}
+		    void SetOutline(bool nOutline){outline = nOutline;}
+		    void SetWrap(bool nWrap){wrap = nWrap;}
+		    void SetLineSpacing(int32 nLineSpacing){lineSpacing = nLineSpacing;}
+		    void Show(){shown = true;}
+		    void Hide(){shown = false;}
 		};
 		
 		static TArray<ScriptStruct> OnUpdateList;
@@ -411,14 +483,18 @@ class GAME_API Frame
 	protected:
 		
 	public:
-		void SetPoint(AnchorPoints nAnchor, int32 nX, int32 nY, int32 nOffsetX, int32 nOffsetY, Frame* relativeTo);
+		FuncType OnUpdateFunc;
+		
+		TArray<TextureWidget*> TextureList;
+		TArray<TextWidget*> TextList;
+		TArray<Point*> PointList;
 		
     static const FString strataList[5];
     
     static TMap<FString, Strata> StrataMap;
     // static TArray<FrameText> TextList;
 		
-		void OnUpdate(FuncType func);
+		void OnUpdate(FuncType func = nullptr);
     
     Frame();
     ~Frame();
@@ -439,10 +515,14 @@ class GAME_API Frame
     int32 GetLevel() const;
     bool IsShown() const;
     bool GetMouseOver() const;
+    bool GetMouseEnabled() const;
     FString GetType() const;
     FString GetStrata() const;
     FString GetName() const;
     Frame* GetParent() const;
+    Anchors GetAnchorPoint() const;
+		Frame* GetRelativeFrame() const;
+    Anchors GetRelativePoint() const;
 		    
 		/*--------------------------------------------------------------------------
 				Set functions
@@ -460,17 +540,23 @@ class GAME_API Frame
     void SetType(FString nType);
     void SetShown(bool nVisibility);
     void SetMouseOver(bool nMouseOver);
+    void SetMouseEnabled(bool nMouseEnabled);
     void SetColor(float nR = 1.f, float nG = 1.f, float nB = 1.f, float nA = 1.f);
     void SetAlpha(float nA = 1.f);
     void SetLevel(int32 nLevel);
     void SetStrata(FString nStrata);
     void SetParent(Frame* nParent);
+		void SetPoint(Anchors nAnchor = Anchors::CENTER, Frame* nRelativeTo = nullptr, Anchors nRelative = Anchors::CENTER, float nX = 0, float nY = 0);
 		
 		/*--------------------------------------------------------------------------
 				Misc frame functions
 		--------------------------------------------------------------------------*/
     static Frame* CreateFrame(FString nType, FString nName, FString nStrata, int32 nLevel);
+		void DeleteFrame();
     static void IterateOnUpdateList();
 		static void Fire(EventEnum event);
 		void FireToFrame(EventEnum event);
+		
+		TextureWidget* CreateTexture();
+		TextWidget* CreateText();
 };

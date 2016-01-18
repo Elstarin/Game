@@ -338,12 +338,15 @@ void AMainHUD::Startup()
   
   auto f1 = Frame::CreateFrame("2D", "Frame1", "BACKGROUND", 0);
   f1->SetPosition(200, 200);
-  f1->SetSize(100, 100);
+  f1->SetSize(50, 50);
   f1->SetColor(1.f, 1.f, 1.f, 1.f);
+  f1->SetMouseEnabled(true);
+  
+  auto text = f1->CreateText();
   
   // f1->OnUpdate([](auto f)
   // {
-  //
+  //   print("Update");
   // });
   
   f1->Set_MOUSE_ENTER([](auto f)
@@ -360,43 +363,166 @@ void AMainHUD::Startup()
     f->SetColor(1.f, 1.f, 1.f, 1.f);
   });
   
-  auto f2 = Frame::CreateFrame("", "Frame2", "BACKGROUND", 0);
-  f2->SetPosition(0, 0);
-  f2->SetSize(200, 200);
-  f2->SetColor(0, 0, 0, 1);
+  // auto f2 = Frame::CreateFrame("2D", "Frame2", "BACKGROUND", 0);
+  // f2->SetPosition(0, 0);
+  // f2->SetSize(250, 100);
+  // f2->SetColor(0, 0, 0, 1);
+  //
+  // f2->SetPoint(Anchors::BOTTOMRIGHT, f1, Anchors::BOTTOMRIGHT, 0, 0);
 }
 
 void AMainHUD::CheckMouseoverFrames(Frame* f, int32 left, int32 right, int32 top, int32 bottom)
 {
+  // If this passes, mouse is currently within the bounds of the frame
   if ((MouseLocation.X >= left) &&
       (MouseLocation.X <= right) &&
       (MouseLocation.Y >= top) &&
       (MouseLocation.Y <= bottom))
   {
-    if (false == f->GetMouseOver())
+    // If it's false, mouse must have just entered frame, so fire the event
+    if (f->GetMouseOver() == false)
     {
       f->SetMouseOver(true);
       f->FireToFrame(EventEnum::MOUSE_ENTER);
     }
+    
+    // Check if left click just got pressed
+    if (PC->WasInputKeyJustPressed(EKeys::LeftMouseButton))
+      f->Fire(MOUSE_LEFT_CLICK_DOWN);
+      
+    // Check if left click just got released
+    if (PC->WasInputKeyJustReleased(EKeys::LeftMouseButton))
+      f->Fire(MOUSE_LEFT_CLICK_UP);
+    
+    // Check if right click just got pressed
+    if (PC->WasInputKeyJustPressed(EKeys::RightMouseButton))
+      f->Fire(MOUSE_RIGHT_CLICK_DOWN);
+      
+    // Check if right click just got released
+    if (PC->WasInputKeyJustReleased(EKeys::RightMouseButton))
+      f->Fire(MOUSE_RIGHT_CLICK_UP);
   }
-  // MouseLocation check failed, make sure it's false
-  else if (true == f->GetMouseOver())
+  // If statement failed, so mouse is NOT currently within the bounds of this frame
+  else
   {
-    f->FireToFrame(EventEnum::MOUSE_EXIT);
-    // Frame::Fire(MOUSE_EXIT);
-    f->SetMouseOver(false);
+    // If it's true, mouse must have just exited frame, so fire the event
+    if (f->GetMouseOver() == true)
+    {
+      f->FireToFrame(EventEnum::MOUSE_EXIT);
+      f->SetMouseOver(false);
+    }
   }
 }
+
+// float CalculatePoint(Anchors point, Frame* relative, Anchors relativePoint, float frameX, float frameY, float frameW, float frameH)
+// {
+//   float fX = frameX;
+//   float fY = frameY;
+//
+//   switch (point)
+//   {
+//     case Anchors::TOPLEFT:
+//       fX = relative->GetX();
+//       fY = relative->GetY();
+//       break;
+//     case Anchors::TOP:
+//       fX = relative->GetX() + (relative->GetWidth() / 2) + (-frameX - (frameW / 2));
+//       fY = relative->GetY();
+//       break;
+//     case Anchors::TOPRIGHT:
+//       fX = relative->GetX() + relative->GetWidth() - frameW;
+//       fY = relative->GetY();
+//       break;
+//     case Anchors::LEFT:
+//       fX = relative->GetX();
+//       fY = relative->GetY() + (relative->GetHeight() / 2) + (frameY - (frameH / 2));
+//       break;
+//     case Anchors::CENTER:
+//       fX = relative->GetX() + (relative->GetWidth() / 2) + (-frameX - (frameW / 2));
+//       fY = relative->GetY() + (relative->GetHeight() / 2) + (frameY - (frameH / 2));
+//       break;
+//     case Anchors::RIGHT:
+//       fX = relative->GetX() + relative->GetWidth() - frameW;
+//       fY = relative->GetY() + (relative->GetHeight() / 2) + (frameY - (frameH / 2));
+//       break;
+//     case Anchors::BOTTOMLEFT:
+//       fX = relative->GetX();
+//       fY = relative->GetY() + relative->GetHeight() - frameH;
+//       break;
+//     case Anchors::BOTTOM:
+//       fX = relative->GetX() + (relative->GetWidth() / 2) + (-frameX - (frameW / 2));
+//       fY = relative->GetY() + relative->GetHeight() - frameH;
+//       break;
+//     case Anchors::BOTTOMRIGHT:
+//       fX = relative->GetX() + relative->GetWidth() - frameW;
+//       fY = relative->GetY() + relative->GetHeight() - frameH;
+//       break;
+//     default:
+//       print("Unknown point!");
+//       break;
+//   }
+//
+//   switch (relativePoint)
+//   {
+//     case Anchors::TOPLEFT:
+//       fX = fX;
+//       fY = fY;
+//       break;
+//     case Anchors::TOP:
+//       fX = fX + (frameW / 2);
+//       fY = fY;
+//       break;
+//     case Anchors::TOPRIGHT:
+//       fX = fX + frameW;
+//       fY = fY;
+//       break;
+//     case Anchors::LEFT:
+//       fX = fX;
+//       fY = fY + (frameH / 2);
+//       break;
+//     case Anchors::CENTER:
+//       fX = fX + (frameW / 2);
+//       fY = fY + (frameH / 2);
+//       break;
+//     case Anchors::RIGHT:
+//       fX = fX + frameW;
+//       fY = fY + (frameH / 2);
+//       break;
+//     case Anchors::BOTTOMLEFT:
+//       fX = fX;
+//       fY = fY + frameH;
+//       break;
+//     case Anchors::BOTTOM:
+//       fX = fX + (frameW / 2);
+//       fY = fY + frameH;
+//       break;
+//     case Anchors::BOTTOMRIGHT:
+//       fX = fX + frameW;
+//       fY = fY + frameH;
+//       break;
+//     default:
+//       print("Unknown relative point!");
+//       break;
+//   }
+//
+//   return fX, fY;
+// }
 
 void AMainHUD::DrawFrames()
 {
   TimerSystem::IterateTimerArrays();
-  Frame::IterateOnUpdateList();
+  // Frame::IterateOnUpdateList();
   
   // Update the mouse's position
   PC->GetMousePosition(MouseLocation.X, MouseLocation.Y);
 
-  if (!bDrawFrames) return; // If false, return
+  // If false, we don't want to draw any frames, so return
+  if (!bDrawFrames) return;
+  
+  static double topLeftCorner;
+  static double topRightCorner;
+  static double bottomLeftCorner;
+  static double bottomRightCorner;
   
   static int32 frameX;
   static int32 frameY;
@@ -423,6 +549,14 @@ void AMainHUD::DrawFrames()
           // Iterate through every frame in this level
           for (auto& f : Frame::StrataMap[strata].LevelMap[i].FrameList)
           {
+            if (f == nullptr) continue; // It's currently null, so skip it
+            
+            // If this frame has an OnUpdate set, call it
+            if (f && (f->OnUpdateFunc != nullptr))
+            {
+              f->OnUpdateFunc(f);
+            }
+            
             // If not shown, don't draw it (obviously)
             if (true == f->IsShown())
             {
@@ -434,16 +568,252 @@ void AMainHUD::DrawFrames()
               // If either are zero it won't be visible, so don't waste time drawing it
               if ((frameW > 0) && (frameH > 0))
               {
-                CheckMouseoverFrames(f, frameX, (frameX + frameW), frameY, (frameY + frameH));
+                // Check if this frame is registered for mouse interactivity, otherwise don't waste time
+                if (f->GetMouseEnabled() == true)
+                {
+                  CheckMouseoverFrames(f, frameX, (frameX + frameW), frameY, (frameY + frameH));
+                }
                 
                 count++;
                 // Use a switch in here for category
                 
+                float fX = frameX;
+                float fY = frameY;
+                
+                // topLeftCorner = 0;
+                // topRightCorner = 0;
+                // bottomLeftCorner = 0;
+                // bottomRightCorner = 0;
+                //
+                // // Make sure it actually has points set
+                // if (f->PointList.Num() > 0)
+                // {
+                //   // Run through each point
+                //   for (auto& point : f->PointList)
+                //   {
+                //     // Get the frame it is relative to
+                //     Frame* relative = point->GetRelativeFrame();
+                //
+                //     // If it is relative to another frame, recalculate its X and Y
+                //     if (relative != nullptr)
+                //     {
+                //       switch (point->GetAnchorPoint())
+                //       {
+                //         case Anchors::TOPLEFT:
+                //           fX = relative->GetX();
+                //           fY = relative->GetY();
+                //           break;
+                //         case Anchors::TOP:
+                //           fX = relative->GetX() + (relative->GetWidth() / 2) + (-frameX - (frameW / 2));
+                //           fY = relative->GetY();
+                //           break;
+                //         case Anchors::TOPRIGHT:
+                //           fX = relative->GetX() + relative->GetWidth() - frameW;
+                //           fY = relative->GetY();
+                //           break;
+                //         case Anchors::LEFT:
+                //           fX = relative->GetX();
+                //           fY = relative->GetY() + (relative->GetHeight() / 2) + (frameY - (frameH / 2));
+                //           break;
+                //         case Anchors::CENTER:
+                //           fX = relative->GetX() + (relative->GetWidth() / 2) + (-frameX - (frameW / 2));
+                //           fY = relative->GetY() + (relative->GetHeight() / 2) + (frameY - (frameH / 2));
+                //           break;
+                //         case Anchors::RIGHT:
+                //           fX = relative->GetX() + relative->GetWidth() - frameW;
+                //           fY = relative->GetY() + (relative->GetHeight() / 2) + (frameY - (frameH / 2));
+                //           break;
+                //         case Anchors::BOTTOMLEFT:
+                //           fX = relative->GetX();
+                //           fY = relative->GetY() + relative->GetHeight() - frameH;
+                //           break;
+                //         case Anchors::BOTTOM:
+                //           fX = relative->GetX() + (relative->GetWidth() / 2) + (-frameX - (frameW / 2));
+                //           fY = relative->GetY() + relative->GetHeight() - frameH;
+                //           break;
+                //         case Anchors::BOTTOMRIGHT:
+                //           fX = relative->GetX() + relative->GetWidth() - frameW;
+                //           fY = relative->GetY() + relative->GetHeight() - frameH;
+                //           break;
+                //       }
+                //
+                //       switch (point->GetRelativePoint())
+                //       {
+                //         case Anchors::TOPLEFT:
+                //           fX = fX;
+                //           fY = fY;
+                //           break;
+                //         case Anchors::TOP:
+                //           fX = fX + (frameW / 2);
+                //           fY = fY;
+                //           break;
+                //         case Anchors::TOPRIGHT:
+                //           fX = fX + frameW;
+                //           fY = fY;
+                //           break;
+                //         case Anchors::LEFT:
+                //           fX = fX;
+                //           fY = fY + (frameH / 2);
+                //           break;
+                //         case Anchors::CENTER:
+                //           fX = fX + (frameW / 2);
+                //           fY = fY + (frameH / 2);
+                //           break;
+                //         case Anchors::RIGHT:
+                //           fX = fX + frameW;
+                //           fY = fY + (frameH / 2);
+                //           break;
+                //         case Anchors::BOTTOMLEFT:
+                //           fX = fX;
+                //           fY = fY + frameH;
+                //           break;
+                //         case Anchors::BOTTOM:
+                //           fX = fX + (frameW / 2);
+                //           fY = fY + frameH;
+                //           break;
+                //         case Anchors::BOTTOMRIGHT:
+                //           fX = fX + frameW;
+                //           fY = fY + frameH;
+                //           break;
+                //       }
+                //     }
+                //   }
+                // }
+                
+                Frame* relative = f->GetRelativeFrame();
+                
+                // If it is relative to another frame, recalculate its X and Y
+                if (relative != nullptr)
+                {
+                  switch (f->GetAnchorPoint())
+                  {
+                    case Anchors::TOPLEFT:
+                      fX = relative->GetX();
+                      fY = relative->GetY();
+                      break;
+                    case Anchors::TOP:
+                      fX = relative->GetX() + (relative->GetWidth() / 2) + (-frameX - (frameW / 2));
+                      fY = relative->GetY();
+                      break;
+                    case Anchors::TOPRIGHT:
+                      fX = relative->GetX() + relative->GetWidth() - frameW;
+                      fY = relative->GetY();
+                      break;
+                    case Anchors::LEFT:
+                      fX = relative->GetX();
+                      fY = relative->GetY() + (relative->GetHeight() / 2) + (frameY - (frameH / 2));
+                      break;
+                    case Anchors::CENTER:
+                      fX = relative->GetX() + (relative->GetWidth() / 2) + (-frameX - (frameW / 2));
+                      fY = relative->GetY() + (relative->GetHeight() / 2) + (frameY - (frameH / 2));
+                      break;
+                    case Anchors::RIGHT:
+                      fX = relative->GetX() + relative->GetWidth() - frameW;
+                      fY = relative->GetY() + (relative->GetHeight() / 2) + (frameY - (frameH / 2));
+                      break;
+                    case Anchors::BOTTOMLEFT:
+                      fX = relative->GetX();
+                      fY = relative->GetY() + relative->GetHeight() - frameH;
+                      break;
+                    case Anchors::BOTTOM:
+                      fX = relative->GetX() + (relative->GetWidth() / 2) + (-frameX - (frameW / 2));
+                      fY = relative->GetY() + relative->GetHeight() - frameH;
+                      break;
+                    case Anchors::BOTTOMRIGHT:
+                      fX = relative->GetX() + relative->GetWidth() - frameW;
+                      fY = relative->GetY() + relative->GetHeight() - frameH;
+                      break;
+                    default:
+                      print("Unknown point!");
+                      break;
+                  }
+                  
+                  switch (f->GetRelativePoint())
+                  {
+                    case Anchors::TOPLEFT:
+                      fX = fX;
+                      fY = fY;
+                      break;
+                    case Anchors::TOP:
+                      fX = fX + (frameW / 2);
+                      fY = fY;
+                      break;
+                    case Anchors::TOPRIGHT:
+                      fX = fX + frameW;
+                      fY = fY;
+                      break;
+                    case Anchors::LEFT:
+                      fX = fX;
+                      fY = fY + (frameH / 2);
+                      break;
+                    case Anchors::CENTER:
+                      fX = fX + (frameW / 2);
+                      fY = fY + (frameH / 2);
+                      break;
+                    case Anchors::RIGHT:
+                      fX = fX + frameW;
+                      fY = fY + (frameH / 2);
+                      break;
+                    case Anchors::BOTTOMLEFT:
+                      fX = fX;
+                      fY = fY + frameH;
+                      break;
+                    case Anchors::BOTTOM:
+                      fX = fX + (frameW / 2);
+                      fY = fY + frameH;
+                      break;
+                    case Anchors::BOTTOMRIGHT:
+                      fX = fX + frameW;
+                      fY = fY + frameH;
+                      break;
+                    default:
+                      print("Unknown relative point!");
+                      break;
+                  }
+                }
+                
                 DrawRect( f->GetColor(),
-                          frameX,
-                          frameY,
+                          fX,
+                          fY,
                           frameW,
                           frameH);
+                
+                          
+                // Check if the frame has any texture widgets
+                if (f->TextureList.Num() > 0)
+                {
+                  for (auto& texture : f->TextureList)
+                  {
+                    // int32 textX
+                    // int32 textY
+                    
+                    // DrawText( texture->GetText(),
+                    //           FLinearColor(0.5f, 0.5f, 0.5f, 1.f),
+                    //           frameX, //
+                    //           frameY,
+                    //           HUDFont,
+                    //           1.f,
+                    //           false);
+                  }
+                }
+                
+                // Check if the frame has any text widgets
+                if (f->TextList.Num() > 0)
+                {
+                  for (auto& text : f->TextList)
+                  {
+                    // int32 textX
+                    // int32 textY
+                    
+                    DrawText( text->GetText(),
+                              FLinearColor(0.5f, 0.5f, 0.5f, 1.f),
+                              frameX, //
+                              frameY,
+                              HUDFont,
+                              1.f,
+                              false);
+                  }
+                }
               }
             }
           }
@@ -671,7 +1041,8 @@ void AMainHUD::CheckCursorInButtonsConfirm()
 }
  
 //Check Buttons
-void AMainHUD::CheckCursorInButtonsMain(){
+void AMainHUD::CheckCursorInButtonsMain()
+{
 	//Check Confirm Buttons
 	ClickedButtonType = CheckCursorInButton(ButtonsMain);
  
@@ -686,7 +1057,8 @@ void AMainHUD::CheckCursorInButtonsMain(){
 	}
 }
 
-void AMainHUD::DrawHUD_CheckCursorInButtons(){
+void AMainHUD::DrawHUD_CheckCursorInButtons()
+{
 	if (ConfirmDialogOpen){
 		CheckCursorInButtonsConfirm();
  
@@ -698,7 +1070,8 @@ void AMainHUD::DrawHUD_CheckCursorInButtons(){
 	CheckCursorInButtonsMain();
 }
  
-void AMainHUD::DrawToolTip(){
+void AMainHUD::DrawToolTip()
+{
 	// If mouse is too far to right, draw from left instead
 	float xStart = MouseLocation.X + 150;
 	float yStart = MouseLocation.Y + 5;
