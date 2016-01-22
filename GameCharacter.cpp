@@ -11,6 +11,7 @@
 		~ Passively increased health/resource regen
 		~ Melee weapons can sweep through all targets?
 ------------------------------------------------------------------------------*/
+Frame* AGameCharacter::frame;
 
 /*------------------------------------------------------------------------------
 		Main constructor
@@ -59,10 +60,27 @@ AGameCharacter::AGameCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	
 	MuzzleOffset = FVector(80.0f, 0.0f, -30.0f);
 	
-	auto PlayerFrame = Frame::CreateFrame("Actor", "PlayerFrame", "BACKGROUND", 0);
-	PlayerFrame->Hide();
+	SetupFrame();
+}
+
+void AGameCharacter::SetupFrame()
+{
+	static bool hasRun = false;
+  if (hasRun) return;
+  hasRun = true;
 	
-	print("Char constructor");
+	frame = Frame::CreateFrame("Actor", "PlayerFrame", "BACKGROUND", 0);
+	frame->Hide();
+	
+	frame->SetEvent(EventEnum::MOUSE_LEFT_CLICK_DOWN, [](const auto& obj) // const auto& obj
+	{
+		print(TimerSystem::GetTime(), "Left click down", obj.event); // obj.event
+	});
+	
+	// frame->SetEvent(EventEnum::MOUSE_LEFT_CLICK_UP, []()
+	// {
+	// 	// print(TimerSystem::GetTime(), "Left click up");
+	// });
 }
 
 void AGameCharacter::PostInitializeComponents()
@@ -180,6 +198,10 @@ void AGameCharacter::MoveRight(float Value)
 ------------------------------------------------------------------------------*/
 void AGameCharacter::OnLeftMouseButtonDown()
 {
+	// frame->FireToFrame(EventEnum::MOUSE_LEFT_CLICK_DOWN);
+	// print(Frame::GetNumFrames());
+	print(TimerSystem::GetTime(), "OnLeftMouseButtonDown");
+	
 	// Make sure it has been initialized
 	if (MagicClass != NULL)
 	{

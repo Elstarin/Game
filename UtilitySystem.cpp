@@ -102,7 +102,9 @@
 #include "TimerSystem.h"
 // #include "MainHUD.h"
 
+// Extern globals
 TArray<FString> FStrPrintArray;
+FString printStr;
 
 UtilitySystem::UtilitySystem()
 {
@@ -115,7 +117,8 @@ UtilitySystem::~UtilitySystem()
 /*------------------------------------------------------------------------------
 		Utility System
 ------------------------------------------------------------------------------*/
-UtilitySystem::UtilitySystem(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer){
+UtilitySystem::UtilitySystem(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
+{
   // static TArray<FString> globalArray; // Make the array
   // static TArray<FString>* globalArrayPtr = &globalArray;
   // globalArray.SetNum(8);
@@ -168,26 +171,47 @@ void UtilitySystem::profileCode(UWorld* const World)
   // APlayerController* PlayerCon = UObject::GetOwningPlayerController();
   // auto PlayerCon = UGameplayStatics::GetPlayerController(World, 0);
   // auto PlayerCon = GetWorld()->GetFirstPlayerController();
+  
+  // print("Creating frame list", Frame::GetNumFrames());
+  // CreateFrameList();
 
   if (false) // Toggle this to easily disable profiling
   {
-    // CreateFrameList();
-    
-    TimerSystem::SetLightTimer(1, [](){
+    TimerSystem::SetTimer(1, [](){
       int32 loopNum = 1;
       // loopNum = 100;
       // loopNum = 1000; // 1k
       // loopNum = 10000; // 10k
       // loopNum = 100000; // 100k
       // loopNum = 500000; // 500k
-      // loopNum = 1000000; // 1m
+      loopNum = 1000000; // 1m
       // loopNum = 10000000; // 10m
-      loopNum = 100000000; // 100m
+      // loopNum = 100000000; // 100m
+      
+      struct CallbackArgs
+      {
+        FString event = "TEST_EVENT";
+        // FString event1 = "TEST_EVENT";
+        // FString event2 = "TEST_EVENT";
+        // FString event3 = "TEST_EVENT";
+        // FString event4 = "TEST_EVENT";
+        // FString event5 = "TEST_EVENT";
+        // FString event6 = "TEST_EVENT";
+        // const char* event = "TEST_EVENT";
+        
+        // CallbackArgs(){print("Args constructed");}
+        // ~CallbackArgs(){print("Args destroyed");}
+      };
+      
+      // static TArray<TUniquePtr<CallbackArgs>> argArray;
+      // static TArray<CallbackArgs*> argArray;
       
       // Code to test
       double start = TimerSystem::GetTime();
       for (int32 i = 1; i <= loopNum; i++)
       {
+        // argArray.Emplace(new CallbackArgs);
+        // argArray.Emplace(new CallbackArgs());
         // Frame::Fire(EventEnum::GAME_PAUSE);
       }
       double stop = TimerSystem::GetTime();
@@ -210,4 +234,122 @@ void UtilitySystem::finishPrint(FString str)
   str.Trim();
   str.Shrink();
   FStrPrintArray.Emplace(str);
+}
+
+inline FString convert(){
+  return "NONE";
+}
+
+inline FString convert(FString x){
+  return x;
+}
+
+inline FString* convert(FString* x){
+  return x;
+}
+
+inline FString convert(const char* x){
+  return x;
+}
+
+// inline FString convert(std::string x){
+//   return x.c_str();
+// }
+
+inline FString convert(bool x){
+  if (x){
+    return TEXT("true");
+  } else {
+    return TEXT("false");
+  }
+}
+
+inline FString convert(int32 x){
+  return FString::FromInt(x);
+}
+
+inline FString convert(int8 x){
+  return FString::FromInt(x);
+}
+
+inline FString convert(int16 x){
+  return FString::FromInt(x);
+}
+
+inline FString convert(int64 x){
+  return FString::FromInt(x);
+}
+
+inline FString convert(uint8 x){
+  return FString::FromInt(x);
+}
+
+inline FString convert(uint16 x){
+  return FString::FromInt(x);
+}
+
+inline FString convert(uint32 x){
+  return FString::FromInt(x);
+}
+
+inline FString convert(uint64 x){
+  return FString::FromInt(x);
+}
+
+inline FString convert(double x){
+  return FString::SanitizeFloat(x);
+}
+
+inline FString convert(float x){
+  return FString::SanitizeFloat(x);
+}
+
+inline FString convert(FVector x)
+{
+  return x.ToString();
+}
+
+inline FString convert(FVector2D x)
+{
+  return x.ToString();
+}
+
+inline FString convert(FRotator x)
+{
+  return x.ToString();
+}
+
+inline FString convert(FLinearColor x)
+{
+  return x.ToString();
+}
+
+inline FString convert(UObject x)
+{
+  return x.GetName();
+}
+
+inline FString convert(AActor x)
+{
+  return x.GetName();
+}
+
+inline FString convert(AActor* x)
+{
+  return x->GetName();
+}
+
+inline FString convert(Frame& x)
+{
+  return FString::Printf(TEXT("%s (%p)"), *(x.GetName()), &x);
+}
+
+inline FString convert(Frame* x)
+{
+  return FString::Printf(TEXT("%s (%p)"), *(x->GetName()), x);
+}
+
+inline FString convert(void* x)
+{
+  return "Pointer: " + FString::Printf(TEXT("%p"), x);
 }

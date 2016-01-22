@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <functional>
+
 class GAME_API TimerSystem
 {
   private:

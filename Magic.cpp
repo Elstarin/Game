@@ -178,11 +178,11 @@ void AMagic::BeginPlay()
 	// 	// GetActorLocation();
 	// };
 	
-	frame->OnUpdate([&](auto f)
-	{
-		// print("Lambda", GetActorLocation());
-		// GetActorLocation();
-	});
+	// frame->OnUpdate([&](auto f)
+	// {
+	// 	// print("Lambda", GetActorLocation());
+	// 	// GetActorLocation();
+	// });
 }
 
 void AMagic::Destroyed()

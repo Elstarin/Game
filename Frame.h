@@ -2,11 +2,8 @@
 
 #pragma once
 
-#include <functional>
+// #include <functional>
 #include <memory>
-
-// template <typename T>
-// using TestFuncType = std::function<void(T&)>;
 
 enum EventEnum
 {
@@ -31,6 +28,11 @@ enum EventEnum
 	MOUSE_LEFT_CLICK_UP,
 	MOUSE_RIGHT_CLICK_DOWN,
 	MOUSE_RIGHT_CLICK_UP,
+	
+	FRAME_LEFT_CLICK_DOWN,
+	FRAME_LEFT_CLICK_UP,
+	FRAME_RIGHT_CLICK_DOWN,
+	FRAME_RIGHT_CLICK_UP,
 	
 	MOUSE_X_DOWN,
 	MOUSE_X_UP,
@@ -334,45 +336,18 @@ class GAME_API Frame
 	private:
 		// typedef void (*FuncType)(Frame*);
 		// typedef std::unique_ptr<Frame*> Frame*;
-		typedef std::function<void(Frame*)> FuncType;
+		
+		struct EventCallbackHolder
+		{
+			std::function<void(EventCallbackHolder)> callback; // Holds the callback function
+			const char* event = "TEST_EVENT";
+			double time;
+		};
 	public:
-		TMap<EventEnum, FuncType> EventMap;
-		
-		void Set_MOUSE_ENTER(FuncType func);
-		void Set_MOUSE_EXIT(FuncType func);
-		void Set_UPDATE(FuncType func);
-		void Set_FRAME_CREATED(FuncType func);
-		void Set_WINDOW_FOCUS_GAINED(FuncType func);
-		void Set_WINDOW_FOCUS_LOST(FuncType func);
-		void Set_KEY_DOWN(FuncType func);
-		void Set_KEY_UP(FuncType func);
-		void Set_GAME_START(FuncType func);
-		void Set_GAME_PAUSE(FuncType func);
-		void Set_GAME_STOP(FuncType func);
-		void Set_MOUSE_MOVING(FuncType func);
-		void Set_MOUSE_X_DOWN(FuncType func);
-		void Set_MOUSE_X_UP(FuncType func);
-		void Set_MOUSE_Y_DOWN(FuncType func);
-		void Set_MOUSE_Y_UP(FuncType func);
-		void Set_MOUSE_SCROLL_DOWN(FuncType func);
-		void Set_MOUSE_SCROLL_UP(FuncType func);
-		void Set_MOUSE_AXIS_DOWN(FuncType func);
-		void Set_MOUSE_AXIS_UP(FuncType func);
-		void Set_MOUSE_LEFT_CLICK_DOWN(FuncType func);
-		void Set_MOUSE_LEFT_CLICK_UP(FuncType func);
-		void Set_MOUSE_RIGHT_CLICK_DOWN(FuncType func);
-		void Set_MOUSE_RIGHT_CLICK_UP(FuncType func);
-		
-		// KEY_DOWN_MouseX,
-		// KEY_UP_MouseX,
-		// KEY_DOWN_MouseY,
-		// KEY_UP_MouseY,
-		// KEY_DOWN_MouseScrollUp,
-		// KEY_UP_MouseScrollUp,
-		// KEY_DOWN_MouseScrollDown,
-		// KEY_UP_MouseScrollDown,
-		// KEY_DOWN_MouseWheelAxis,
-		// KEY_UP_MouseWheelAxis,
+		typedef TUniquePtr<Frame> FramePtrType;
+		typedef std::function<void()> FuncType;
+		// typedef std::function<void(Frame*)> FuncType;
+		TMap<EventEnum, EventCallbackHolder> EventMap;
 	private:
 		float w, h;
 		float x, y;
@@ -386,7 +361,7 @@ class GAME_API Frame
 		FString strata;
 		FString name;
 		Frame* parent;
-		static int32 count;
+		static int32 frameCount;
 		static TArray<Frame*> FrameList; // All frames are stored in here
 		
 		Anchors anchorPoint;
@@ -486,6 +461,7 @@ class GAME_API Frame
 	protected:
 		
 	public:
+		EventCallbackHolder OnUpdateScript;
 		FuncType OnUpdateFunc;
 		
 		TArray<TextureWidget*> TextureList;
@@ -505,6 +481,8 @@ class GAME_API Frame
 		/*--------------------------------------------------------------------------
 				Get functions
 		--------------------------------------------------------------------------*/
+		static int32 GetNumFrames();
+		
     float GetWidth() const;
     float GetHeight() const;
     float GetSize() const;
@@ -530,6 +508,23 @@ class GAME_API Frame
 		/*--------------------------------------------------------------------------
 				Set functions
 		--------------------------------------------------------------------------*/
+		template<typename T>
+		void SetEvent(EventEnum event, T func)
+		{
+		  if (EventMap.Contains(event))
+			{
+				// If it already exists, replace the old function with this one
+				EventMap[event].callback = func;
+			}
+		  else
+			{
+				// Otherwise, create a new holder and add it both to the map
+				EventCallbackHolder holder;
+				holder.callback = func;
+				EventMap.Emplace(event, holder);
+			}
+		}
+		
 		void Show();
 		void Hide();
     void SetWidth(float nW);

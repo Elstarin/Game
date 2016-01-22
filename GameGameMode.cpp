@@ -18,7 +18,8 @@ AGameGameMode::AGameGameMode()
 	HUDClass = AMainHUD::StaticClass();
 }
 
-void AGameGameMode::StartPlay(){
+void AGameGameMode::StartPlay()
+{
   Super::StartPlay();
 
   StartMatch();

@@ -366,19 +366,19 @@ void AMainHUD::Startup()
   //   print("Update");
   // });
   
-  f1->Set_MOUSE_ENTER([](auto f)
-  {
-    float r = FMath::FRandRange(0, 1);
-    float g = FMath::FRandRange(0, 1);
-    float b = FMath::FRandRange(0, 1);
-
-    f->SetColor(r, g, b, 1.f);
-  });
+  // f1->Set_MOUSE_ENTER([](auto f)
+  // {
+  //   float r = FMath::FRandRange(0, 1);
+  //   float g = FMath::FRandRange(0, 1);
+  //   float b = FMath::FRandRange(0, 1);
+  //
+  //   f->SetColor(r, g, b, 1.f);
+  // });
   
-  f1->Set_MOUSE_EXIT([](auto f)
-  {
-    f->SetColor(1.f, 1.f, 1.f, 1.f);
-  });
+  // f1->Set_MOUSE_EXIT([](auto f)
+  // {
+  //   f->SetColor(1.f, 1.f, 1.f, 1.f);
+  // });
   
   // auto f2 = Frame::CreateFrame("2D", "Frame2", "BACKGROUND", 0);
   // f2->SetPosition(0, 0);
@@ -392,10 +392,17 @@ void AMainHUD::Startup()
   //   // print(args.event);
   // };
   
-  auto lambda = [&](auto f, auto args)
-  {
-    print("Called");
-  };
+  // auto lambda = [&]()
+  // {
+  //   TUniquePtr<CallbackArgs> args(new CallbackArgs);
+  //   print("Called");
+  //
+  //   return args;
+  // };
+  //
+  // auto passedArgs = lambda();
+  // print(&passedArgs);
+  // print(passedArgs->event);
   
   // TestFuncType temp;
   
@@ -403,15 +410,40 @@ void AMainHUD::Startup()
   // print("Size:", sizeof(temp), sizeof(lambda), sizeof(args));
   // temp(f1, args);
   
-  TimerSystem::SetTicker(0.5, [&](auto ticker)
-  {
-    static TestFuncType temp = lambda;
-    CallbackArgs* args = new CallbackArgs();
-    
-    temp(f1, args);
-    
-    delete args;
-  });
+  // typedef TUniquePtr<CallbackArgs> ArgUniquePtr;
+  // static TArray<TUniquePtr<CallbackArgs>> argArray;
+  //
+  // TimerSystem::SetTicker(0.1, [&](auto ticker)
+  // {
+  //   static TestFuncType temp = lambda;
+  //
+  //   // TUniquePtr<CallbackArgs> args(new CallbackArgs);
+  //
+  //   // CallbackArgs args;
+  //   // CallbackArgs* args = new CallbackArgs();
+  //   // CallbackArgs* argsPtr;
+  //
+  //   // argArray.Emplace(args->Release());
+  //   // argArray.Emplace(new CallbackArgs);
+  //
+  //   // temp(f1, args);
+  //
+  //   // delete args;
+  // }, 3);
+  //
+  // TimerSystem::SetTimer(0.5, [&]()
+  // {
+  //   argArray[1]->event = "SET EVENT";
+  //
+  //   print("Running loop");
+  //
+  //   int32 i = 0;
+  //   for (const auto& arg : argArray)
+  //   {
+  //     i++;
+  //     print("Result:", i, arg->event);
+  //   }
+  // });
 }
 
 void AMainHUD::CheckMouseoverFrames(Frame* f, int32 left, int32 right, int32 top, int32 bottom)
@@ -431,19 +463,19 @@ void AMainHUD::CheckMouseoverFrames(Frame* f, int32 left, int32 right, int32 top
     
     // Check if left click just got pressed
     if (PC->WasInputKeyJustPressed(EKeys::LeftMouseButton))
-      f->Fire(MOUSE_LEFT_CLICK_DOWN);
-      
+      f->Fire(FRAME_LEFT_CLICK_DOWN);
+    
     // Check if left click just got released
     if (PC->WasInputKeyJustReleased(EKeys::LeftMouseButton))
-      f->Fire(MOUSE_LEFT_CLICK_UP);
+      f->Fire(FRAME_LEFT_CLICK_UP);
     
     // Check if right click just got pressed
     if (PC->WasInputKeyJustPressed(EKeys::RightMouseButton))
-      f->Fire(MOUSE_RIGHT_CLICK_DOWN);
-      
+      f->Fire(FRAME_RIGHT_CLICK_DOWN);
+    
     // Check if right click just got released
     if (PC->WasInputKeyJustReleased(EKeys::RightMouseButton))
-      f->Fire(MOUSE_RIGHT_CLICK_UP);
+      f->Fire(FRAME_RIGHT_CLICK_UP);
   }
   // If statement failed, so mouse is NOT currently within the bounds of this frame
   else
@@ -551,8 +583,13 @@ void AMainHUD::CheckMouseoverFrames(Frame* f, int32 left, int32 right, int32 top
 //   return fX, fY;
 // }
 
+/*------------------------------------------------------------------------------
+		Main draw function for frames
+------------------------------------------------------------------------------*/
 void AMainHUD::DrawFrames()
 {
+  // TArray<EKeys::Type> GameControlKeys;
+  
   TimerSystem::IterateTimerArrays();
   // Frame::IterateOnUpdateList();
   
@@ -561,6 +598,8 @@ void AMainHUD::DrawFrames()
 
   // If false, we don't want to draw any frames, so return
   if (!bDrawFrames) return;
+  
+  // print("Starting draw cycle");
   
   static double topLeftCorner;
   static double topRightCorner;
@@ -594,10 +633,18 @@ void AMainHUD::DrawFrames()
           {
             if (f == nullptr) continue; // It's currently null, so skip it
             
+            // print("Drawing:", f->GetName());
+            
+            // // If this frame has an OnUpdate set, call it
+            // if (f && (f->OnUpdateFunc != nullptr))
+            // {
+            //   // f->OnUpdateFunc(f); // NOTE: Fix
+            // }
+            
             // If this frame has an OnUpdate set, call it
-            if (f && (f->OnUpdateFunc != nullptr))
+            if (f->OnUpdateScript)
             {
-              f->OnUpdateFunc(f);
+              // f->OnUpdateScript.callback();
             }
             
             // If not shown, don't draw it (obviously)
@@ -910,7 +957,8 @@ void AMainHUD::DrawConfirm()
 }
  
 //Buttons
-void AMainHUD::DrawMainMenuButtons(){
+void AMainHUD::DrawMainMenuButtons()
+{
 	//Start Point
 	float xStart = 100;
 	float yStart = 110;
@@ -971,7 +1019,8 @@ void AMainHUD::DrawMainMenuButtons(){
 	}
 }
 
-void AMainHUD::DrawConfirmButtons(){
+void AMainHUD::DrawConfirmButtons()
+{
 	float xStart = Canvas->SizeX/2 - 100;
 	float yStart = Canvas->SizeY/2 - 40;
  
@@ -1331,7 +1380,6 @@ void AMainHUD::DrawHUD_Reset(){
  
 void AMainHUD::DrawHUD()
 {
-  // print("Draw...");
 	// Have PC for Input Checks and Mouse Cursor?
 	if (!PC)
   {

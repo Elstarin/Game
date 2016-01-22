@@ -69,6 +69,9 @@ class AGameCharacter : public ACharacter
 		
 		// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Magic)
 		// AMagic* MagicClass;
+		
+		static Frame* frame;
+		void SetupFrame();
 	protected:
 		/** Called for forwards/backward input */
 		void MoveForward(float Value);

@@ -3,7 +3,7 @@
 #include "Game.h"
 #include "Frame.h"
 
-int32 Frame::count = 0;
+int32 Frame::frameCount = 0;
 TMap<FString, Frame::Strata> Frame::StrataMap;
 const FString Frame::strataList[5] = {"BACKGROUND", "LOW", "MEDIUM", "HIGH", "OVERLAY"};
 
@@ -27,7 +27,7 @@ Frame::Frame()
   scale = 1.f;
   level = 0.f;
   strata = "BACKGROUND";
-  name = "Frame_" + FString::FromInt(count);
+  name = "Frame_" + FString::FromInt(frameCount);
   // Frame* parent;
   
   bMouseEnabled = false;
@@ -35,7 +35,7 @@ Frame::Frame()
   // TMap<EventEnum, FuncType> EventMap;
   // EventMap.Emplace(EventEnum::UPDATE, UPDATE);
   
-  count++; // Track the total number of frames
+  frameCount++; // Track the total number of frames
 }
 
 Frame::~Frame()
@@ -49,6 +49,8 @@ Frame::~Frame()
   //
   //   }
   // }
+  
+  frameCount--;
 }
 
 void Frame::DeleteFrame()
@@ -57,7 +59,6 @@ void Frame::DeleteFrame()
   FrameList.Remove(this);
   FrameList.Shrink();
   this->OnUpdate(); // Set it to nullptr
-  
 }
 
 class FrameActor : public Frame
@@ -110,215 +111,54 @@ class FrameText : public Frame
 /*------------------------------------------------------------------------------
 		Event setting functions
 ------------------------------------------------------------------------------*/
-void Frame::Set_MOUSE_ENTER(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::MOUSE_ENTER))
-    EventMap[EventEnum::MOUSE_ENTER] = func;
-  else
-    EventMap.Emplace(EventEnum::MOUSE_ENTER, func);
-}
+// // If we want to bind any arguments to specific events, that can be done in this switch statement
+// switch (event)
+// {
+//   case EventEnum::SCORE_UPDATE:
+//     return;
+//   case EventEnum::MOUSE_EXIT:
+//     return;
+//   case EventEnum::MOUSE_CLICKED_DOWN:
+//     return;
+//   case EventEnum::MOUSE_CLICKED_UP:
+//     return;
+//   case EventEnum::UPDATE:
+//     return;
+//   case EventEnum::FRAME_CREATED:
+//     return;
+//   case EventEnum::GAME_START:
+//     return;
+//   case EventEnum::GAME_STOP:
+//     return;
+//   case EventEnum::KEY_DOWN:
+//     return;
+//   case EventEnum::KEY_UP:
+//     return;
+//   case EventEnum::MOUSE_MOVING:
+//     return;
+//   case EventEnum::WINDOW_FOCUS_GAINED:
+//     return;
+//   case EventEnum::WINDOW_FOCUS_LOST:
+//     return;
+//   case EventEnum::DRAWING:
+//     return;
+//   case EventEnum::SCORE_UPDATE:
+//     return;
+// }
 
-void Frame::Set_MOUSE_EXIT(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::MOUSE_EXIT))
-    EventMap[EventEnum::MOUSE_EXIT] = func;
-  else
-    EventMap.Emplace(EventEnum::MOUSE_EXIT, func);
-}
-
-void Frame::Set_MOUSE_LEFT_CLICK_DOWN(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::MOUSE_LEFT_CLICK_DOWN))
-    EventMap[EventEnum::MOUSE_LEFT_CLICK_DOWN] = func;
-  else
-    EventMap.Emplace(EventEnum::MOUSE_LEFT_CLICK_DOWN, func);
-}
-
-void Frame::Set_MOUSE_LEFT_CLICK_UP(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::MOUSE_LEFT_CLICK_UP))
-    EventMap[EventEnum::MOUSE_LEFT_CLICK_UP] = func;
-  else
-    EventMap.Emplace(EventEnum::MOUSE_LEFT_CLICK_UP, func);
-}
-
-void Frame::Set_MOUSE_RIGHT_CLICK_DOWN(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::MOUSE_RIGHT_CLICK_DOWN))
-    EventMap[EventEnum::MOUSE_RIGHT_CLICK_DOWN] = func;
-  else
-    EventMap.Emplace(EventEnum::MOUSE_RIGHT_CLICK_DOWN, func);
-}
-
-void Frame::Set_MOUSE_RIGHT_CLICK_UP(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::MOUSE_RIGHT_CLICK_UP))
-    EventMap[EventEnum::MOUSE_RIGHT_CLICK_UP] = func;
-  else
-    EventMap.Emplace(EventEnum::MOUSE_RIGHT_CLICK_UP, func);
-}
-
-void Frame::Set_UPDATE(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::UPDATE))
-    EventMap[EventEnum::UPDATE] = func;
-  else
-    EventMap.Emplace(EventEnum::UPDATE, func);
-}
-
-void Frame::Set_FRAME_CREATED(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::FRAME_CREATED))
-    EventMap[EventEnum::FRAME_CREATED] = func;
-  else
-    EventMap.Emplace(EventEnum::FRAME_CREATED, func);
-}
-
-void Frame::Set_WINDOW_FOCUS_GAINED(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::WINDOW_FOCUS_GAINED))
-    EventMap[EventEnum::WINDOW_FOCUS_GAINED] = func;
-  else
-    EventMap.Emplace(EventEnum::WINDOW_FOCUS_GAINED, func);
-}
-
-void Frame::Set_WINDOW_FOCUS_LOST(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::WINDOW_FOCUS_LOST))
-    EventMap[EventEnum::WINDOW_FOCUS_LOST] = func;
-  else
-    EventMap.Emplace(EventEnum::WINDOW_FOCUS_LOST, func);
-}
-
-void Frame::Set_KEY_DOWN(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::KEY_DOWN))
-    EventMap[EventEnum::KEY_DOWN] = func;
-  else
-    EventMap.Emplace(EventEnum::KEY_DOWN, func);
-}
-
-void Frame::Set_KEY_UP(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::KEY_UP))
-    EventMap[EventEnum::KEY_UP] = func;
-  else
-    EventMap.Emplace(EventEnum::KEY_UP, func);
-}
-
-void Frame::Set_GAME_START(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::GAME_START))
-    EventMap[EventEnum::GAME_START] = func;
-  else
-    EventMap.Emplace(EventEnum::GAME_START, func);
-}
-
-void Frame::Set_GAME_PAUSE(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::GAME_PAUSE))
-    EventMap[EventEnum::GAME_PAUSE] = func;
-  else
-    EventMap.Emplace(EventEnum::GAME_PAUSE, func);
-}
-
-void Frame::Set_GAME_STOP(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::GAME_STOP))
-    EventMap[EventEnum::GAME_STOP] = func;
-  else
-    EventMap.Emplace(EventEnum::GAME_STOP, func);
-}
-
-void Frame::Set_MOUSE_MOVING(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::MOUSE_MOVING))
-    EventMap[EventEnum::MOUSE_MOVING] = func;
-  else
-    EventMap.Emplace(EventEnum::MOUSE_MOVING, func);
-}
-
-void Frame::Set_MOUSE_X_DOWN(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::MOUSE_X_DOWN))
-    EventMap[EventEnum::MOUSE_X_DOWN] = func;
-  else
-    EventMap.Emplace(EventEnum::MOUSE_X_DOWN, func);
-}
-
-void Frame::Set_MOUSE_X_UP(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::MOUSE_X_UP))
-    EventMap[EventEnum::MOUSE_X_UP] = func;
-  else
-    EventMap.Emplace(EventEnum::MOUSE_X_UP, func);
-}
-
-void Frame::Set_MOUSE_Y_DOWN(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::MOUSE_Y_DOWN))
-    EventMap[EventEnum::MOUSE_Y_DOWN] = func;
-  else
-    EventMap.Emplace(EventEnum::MOUSE_Y_DOWN, func);
-}
-
-void Frame::Set_MOUSE_Y_UP(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::MOUSE_Y_UP))
-    EventMap[EventEnum::MOUSE_Y_UP] = func;
-  else
-    EventMap.Emplace(EventEnum::MOUSE_Y_UP, func);
-}
-
-void Frame::Set_MOUSE_SCROLL_DOWN(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::MOUSE_SCROLL_DOWN))
-    EventMap[EventEnum::MOUSE_SCROLL_DOWN] = func;
-  else
-    EventMap.Emplace(EventEnum::MOUSE_SCROLL_DOWN, func);
-}
-
-void Frame::Set_MOUSE_SCROLL_UP(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::MOUSE_SCROLL_UP))
-    EventMap[EventEnum::MOUSE_SCROLL_UP] = func;
-  else
-    EventMap.Emplace(EventEnum::MOUSE_SCROLL_UP, func);
-}
-
-void Frame::Set_MOUSE_AXIS_DOWN(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::MOUSE_AXIS_DOWN))
-    EventMap[EventEnum::MOUSE_AXIS_DOWN] = func;
-  else
-    EventMap.Emplace(EventEnum::MOUSE_AXIS_DOWN, func);
-}
-
-void Frame::Set_MOUSE_AXIS_UP(FuncType func)
-{
-  if (EventMap.Contains(EventEnum::MOUSE_AXIS_UP))
-    EventMap[EventEnum::MOUSE_AXIS_UP] = func;
-  else
-    EventMap.Emplace(EventEnum::MOUSE_AXIS_UP, func);
-}
 /*------------------------------------------------------------------------------
 		Special script events
 ------------------------------------------------------------------------------*/
 void Frame::OnUpdate(FuncType func)
 {
-  // Defaults to nullptr if not supplied
-  
-  // ScriptStruct script;
-  // script.frame = this;
-  // script.function = func;
-  //
-  // OnUpdateList.Emplace(script);
-  
+  // std::function<void(Frame*)>
   OnUpdateFunc = func;
 }
 /*------------------------------------------------------------------------------
     Get functions
 ------------------------------------------------------------------------------*/
+int32 Frame::GetNumFrames(){return frameCount;}
+
 float Frame::GetWidth() const {return w;}
 float Frame::GetHeight() const {return h;}
 float Frame::GetSize() const {return w, h;}
@@ -600,14 +440,21 @@ void Frame::SetPoint(Anchors nAnchor, Frame* nRelativeTo, Anchors nRelative, flo
 
 void Frame::FireToFrame(EventEnum event)
 {
-  if (this->EventMap.Contains(event)) // Check if it has the event
+  if (this && this != nullptr && this->EventMap.Contains(event)) // Check if it has the event
   {
-    this->EventMap[event](this); // Call the event
+    this->EventMap[event].time = TimerSystem::GetTime(); // Update the time
+    this->EventMap[event].callback(this->EventMap[event]); // Call the event and pass the object
+  }
+  else
+  {
+    print("FireToFrame failed!");
   }
 }
 
 void Frame::Fire(EventEnum event)
 {
+  double cTime = TimerSystem::GetTime();
+  
   // print("Event:", event);
   switch (event) // Event override behavior can go in here
   {
@@ -642,11 +489,12 @@ void Frame::Fire(EventEnum event)
     // case EventEnum::SCORE_UPDATE:
     //   return;
     default: // If there is no special behavior for this event, pass it down here
-      for (auto& f : FrameList) // Iterate through every frame
+      for (const auto& f : FrameList) // Iterate through every frame
       {
         if (f->EventMap.Contains(event)) // Check if they have the event
         {
-          f->EventMap[event](f); // Call the event
+          f->EventMap[event].time = cTime; // Update the time
+          f->EventMap[event].callback(f->EventMap[event]); // Call the event and pass the object
         }
       }
   }
@@ -654,10 +502,10 @@ void Frame::Fire(EventEnum event)
 
 void Frame::IterateOnUpdateList()
 {
-  for (auto& script : OnUpdateList)
-  {
-    script.function(script.frame);
-  }
+  // for (auto& script : OnUpdateList)
+  // {
+  //   script.function(script.frame);
+  // }
 }
 
 Frame* Frame::CreateFrame(
@@ -671,15 +519,10 @@ Frame* Frame::CreateFrame(
   // Frame test; // The variable to hold the new frame
   // std::unique_ptr<Frame> test(new Frame);
   
-  // if (nType == "") // Type wasn't given, default to basic frame
-  //   std::unique_ptr<Frame*> f(new Frame);
-  // else if (nType == "2D") // A 2D frame for the flat user interface
-  //   std::unique_ptr<Frame*> f(new Frame2D);
-  // else if (nType == "3D") // A 3D frame for displaying in the game world
-  //   std::unique_ptr<Frame*> f(new Frame3D);
-  // else if (nType == "Actor") // A frame to hook to an actor for events? I dunno
-  //   std::unique_ptr<Frame*> f(new FrameActor);
-
+  // int32 num = FrameList.Num()
+  // FrameList.Emplace(new Frame());
+  // auto& f = FrameList[FrameList.Num() - 1]; // Grab a reference to the one that was just added
+  
   if (nType == "") // Type wasn't given, default to basic frame
     f = new Frame();
   else if (nType == "2D") // A 2D frame for the flat user interface
@@ -691,10 +534,8 @@ Frame* Frame::CreateFrame(
   
   FrameList.Emplace(f);
   
-  // delete f; // TODO: Move this to the right place.
-  
   // If there wasn't a name passed, give it a default name
-  if (nName == "") f->SetName("Frame_" + FString::FromInt(count));
+  if (nName == "") f->SetName("Frame_" + FString::FromInt(frameCount));
   else f->SetName(nName);
   
   f->type = nType;
@@ -738,7 +579,7 @@ Frame::TextWidget* Frame::CreateText()
   text->SetLineSpacing(10);
   text->Show();
   
-  print("Creating text object.");
+  // print("Creating text object.");
   
   return text;
 }
