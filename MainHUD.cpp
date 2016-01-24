@@ -345,46 +345,79 @@ typedef std::function<void(Frame*, CallbackArgs*)> TestFuncType;
 // typedef std::function<void(Frame*, std::unique_ptr<CallbackArgs>)> TestFuncType;
 // typedef std::function<void(Frame*)> TestFuncType;
 
-void GenerateGUID(char* const GUID, const int32 length)
-{
-  static const char* const alphabet = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
-  static const char* const alphabetL = "abcdefghijklmnopqrstuvwxyz";
-  static const char* const alphabetU = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  static const char* const numbers = "0123456789";
-  
-  // const int32 length = 25;
-  // char GUID[length]; // The char array that will hold the newly generated GUID
-  const int32 split = length / 5;
-  
-  for (int32 i = 0; i < (length - 1); i++)
-  {
-    // Every split number of characters, add a '-', but not when it's near the end
-    if (((i + split) <= length) && ((i % (split + 1)) == split))
-    {
-      GUID[i] = '-';
-    }
-    // If this passes, use a letter. Numbers should be more common, looks better
-    else if (FMath::RandRange(0, 2) == 0)
-    {
-      // If it passes, use a lower case letter. If not, use upper case
-      if (FMath::RandRange(0, 1) == 1)
-      {
-        GUID[i] = alphabetL[FMath::RandRange(0, 25)]; // Pick a random lower case letter
-      }
-      else
-      {
-        GUID[i] = alphabetU[FMath::RandRange(0, 25)]; // Pick a random upper case letter
-      }
-    }
-    // Was 1 or 2, use a number instead
-    else
-    {
-      GUID[i] = numbers[FMath::RandRange(0, 9)]; // Pick a random number
-    }
-  }
-  
-  GUID[length - 1] = '\0'; // Make sure the last char is the null character
-}
+// void GenerateGUID(char* const GUID, const int32 length)
+// {
+//   static const char* const alphabet = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
+//   static const char* const alphabetL = "abcdefghijklmnopqrstuvwxyz";
+//   static const char* const alphabetU = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+//   static const char* const numbers = "0123456789";
+//
+//   // const int32 length = 25;
+//   // char GUID[length]; // The char array that will hold the newly generated GUID
+//   const int32 split = length / 5;
+//
+//   for (int32 i = 0; i < (length - 1); i++)
+//   {
+//     // Every split number of characters, add a '-', but not when it's near the end
+//     if (((i + split) <= length) && ((i % (split + 1)) == split))
+//     {
+//       GUID[i] = '-';
+//     }
+//     // If this passes, use a letter. Numbers should be more common, looks better
+//     else if (FMath::RandRange(0, 2) == 0)
+//     {
+//       // If it passes, use a lower case letter. If not, use upper case
+//       if (FMath::RandRange(0, 1) == 1)
+//       {
+//         GUID[i] = alphabetL[FMath::RandRange(0, 25)]; // Pick a random lower case letter
+//       }
+//       else
+//       {
+//         GUID[i] = alphabetU[FMath::RandRange(0, 25)]; // Pick a random upper case letter
+//       }
+//     }
+//     // Was 1 or 2, use a number instead
+//     else
+//     {
+//       GUID[i] = numbers[FMath::RandRange(0, 9)]; // Pick a random number
+//     }
+//   }
+//
+//   GUID[length - 1] = '\0'; // Make sure the last char is the null character
+// }
+
+// void GenerateGUID(char* const GUID, const int32 length)
+// {
+//   static const char* const alphabet = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
+//   // static const char* const alphabetL = "abcdefghijklmnopqrstuvwxyz";
+//   // static const char* const alphabetU = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+//   static const char* const numbers = "0123456789";
+//
+//   // const int32 length = 25;
+//   // char GUID[length]; // The char array that will hold the newly generated GUID
+//   const int32 split = length / 5;
+//
+//   for (int32 i = 0; i < (length - 1); i++)
+//   {
+//     // Every split number of characters, add a '-', but not when it's near the end
+//     if (((i + split) <= length) && ((i % (split + 1)) == split))
+//     {
+//       GUID[i] = '-';
+//     }
+//     // If this passes, use a number. Numbers should be more common, looks better
+//     else if (FMath::RandRange(0, 100) >= 70)
+//     {
+//       GUID[i] = numbers[FMath::RandRange(0, 9)]; // Pick a random number
+//     }
+//     // Otherwise, use a letter
+//     else
+//     {
+//       GUID[i] = alphabet[FMath::RandRange(0, 51)]; // Pick a random letter
+//     }
+//   }
+//
+//   GUID[length - 1] = '\0'; // Make sure the last char is the null character
+// }
 
 void AMainHUD::Startup()
 {
@@ -392,11 +425,11 @@ void AMainHUD::Startup()
   if (hasRun) return;
   hasRun = true;
   
-  {
-    char GUID[25];
-    GenerateGUID(GUID, 25);
-    print(GUID);
-  }
+  // {
+  //   char GUID[25];
+  //   GenerateGUID(GUID, 25);
+  //   print(GUID);
+  // }
   
   // UE_LOG(Main, Warning, TEXT("Startup..."));
   

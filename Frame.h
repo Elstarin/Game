@@ -9,20 +9,22 @@
 
 class Frame;
 
-using CallbackEventUPtrType = std::shared_ptr<struct EventCallbackHolder>;
-using CallbackEventFuncType = std::function<void(CallbackEventUPtrType)>;
+using CallbackEventUPtrType = std::unique_ptr<struct EventCallbackHolder>;
+using CallbackEventFuncType = std::function<void(struct EventCallbackHolder*)>;
 struct EventCallbackHolder
 {
-	
 	const char* event = "TEST_EVENT";
-	double time;
-	CallbackEventFuncType callback;
+	double time = 0.f;
+	std::function<void(EventCallbackHolder*)> callback = nullptr;
 	Frame* frame;
 	
-	EventCallbackHolder()
-	{
-		callback = nullptr;
-	}
+	EventCallbackHolder();
+	~EventCallbackHolder();
+	
+	// void operator()()
+	// {
+	// 	callback(this);
+	// }
 } eventHolder;
 
 enum EventEnum
@@ -364,7 +366,7 @@ class GAME_API Frame
 		typedef TUniquePtr<Frame> FramePtrType;
 		typedef std::function<void()> FuncType;
 		// TMap<EventEnum, EventCallbackHolder> EventMap;
-		static TMap<EventEnum, TArray<CallbackEventUPtrType>> EventMultiMap;
+		static TMap<EventEnum, TArray<EventCallbackHolder>> EventMultiMap;
 	private:
 		float w, h;
 		float x, y;
@@ -377,6 +379,7 @@ class GAME_API Frame
 		FString type;
 		FString strata;
 		FString name;
+		FString uniqueID;
 		Frame* parent;
 		static int32 frameCount;
 		static TArray<Frame*> FrameList; // All frames are stored in here
@@ -517,6 +520,7 @@ class GAME_API Frame
     FString GetType() const;
     FString GetStrata() const;
     FString GetName() const;
+    FString GetUniqueID() const;
     Frame* GetParent() const;
     Anchors GetAnchorPoint() const;
 		Frame* GetRelativeFrame() const;
@@ -525,7 +529,7 @@ class GAME_API Frame
 		/*--------------------------------------------------------------------------
 				Set functions
 		--------------------------------------------------------------------------*/
-		void SetEvent(EventEnum event, CallbackEventFuncType func);
+		void SetEvent(EventEnum event, std::function<void(EventCallbackHolder*)> func);
 		
 		void Show();
 		void Hide();
@@ -551,6 +555,7 @@ class GAME_API Frame
 		/*--------------------------------------------------------------------------
 				Misc frame functions
 		--------------------------------------------------------------------------*/
+		static void GenerateUniqueID(char* const ID, const int32 length);
     static Frame* CreateFrame(FString nType, FString nName, FString nStrata, int32 nLevel);
 		void DeleteFrame();
     static void IterateOnUpdateList();

@@ -148,9 +148,9 @@ void CreateFrameList()
   for (int32 i = 1; i <= 1000; i++)
   {
     auto frame = Frame::CreateFrame("", "", "BACKGROUND", 0);
-    frame->SetEvent(EventEnum::MOUSE_LEFT_CLICK_DOWN, [](const auto& obj)
+    frame->SetEvent(EventEnum::MOUSE_LEFT_CLICK_DOWN, [](auto* obj)
     {
-    
+      
     });
   }
 }
@@ -168,69 +168,79 @@ void CreateFrameList()
 //   // }
 // }
 
-// void UtilitySystem::profileCode()
 void UtilitySystem::profileCode(UWorld* const World)
 {
-  if (!false) return; // If false, don't profile. If true, do profile.
+  if (!true) return; // If false, don't profile. If true, do profile.
   
-  CreateFrameList();
+  int32 loopNum = 1;
   
-  TimerSystem::SetTimer(0.1f, [](){
-    int32 loopNum = 1;
+  loopNum = 5;
+  // loopNum = 100;
+  // loopNum = 1000; // 1k
+  // loopNum = 10000; // 10k
+  // loopNum = 100000; // 100k
+  // loopNum = 500000; // 500k
+  // loopNum = 1000000; // 1m
+  // loopNum = 10000000; // 10m
+  // loopNum = 100000000; // 100m
+  
+  // CreateFrameList();
+  
+  for (int32 i = 1; i <= 1000; i++)
+  {
+    auto frame = Frame::CreateFrame("", "", "BACKGROUND", 0);
     
-    // loopNum = 100;
-    // loopNum = 1000; // 1k
-    // loopNum = 10000; // 10k
-    // loopNum = 100000; // 100k
-    // loopNum = 500000; // 500k
-    loopNum = 1000000; // 1m
-    // loopNum = 10000000; // 10m
-    // loopNum = 100000000; // 100m
-    
-    struct Temp
-    {
-    	const char* event = "TEST_EVENT";
-    	double time = 0.f;
-      // void (*callback)(Temp*) = nullptr;
-    	std::function<void(Temp*)> callback = nullptr;
-    	Frame* frame;
-    };
-    
-    // auto frame = Frame::CreateFrame("", "", "BACKGROUND", 0);
-    
-    // CreateFrameList();
-    auto lambda = [&](auto* obj) // auto& obj
+    auto lambda = [](auto* obj)
     {
     
     };
     
-    Temp t;
-    t.frame = Frame::CreateFrame("", "", "BACKGROUND", 0);
-    t.callback = std::cref(lambda);
-    
-    // Code to test
-    double start = TimerSystem::GetTime();
-    for (int32 i = 1; i <= loopNum; i++)
-    {
-      // for (int32 n = 1; n <= 1000; n++)
-      // {
-      //   t.callback(&t);
-      // }
-      // Frame::Fire(EventEnum::GAME_PAUSE);
-      Frame::Fire(EventEnum::MOUSE_LEFT_CLICK_DOWN);
-    }
-    double stop = TimerSystem::GetTime();
-    
-    double totalMS = (stop - start) * 1000.f; // Total time in milliseconds
-    double MSper = totalMS / loopNum; // Milliseconds per iteration
-    double oneSecond = 1000.f / MSper; // How many iterations can be done in one second
-    double oneMS = oneSecond / 1000.f; // How many iterations can be done in one millisecond
-    
-    print("Total MS:", totalMS);
-    print("MS per:", MSper);
-    print("In 1 second:", oneSecond);
-    print("In 1 MS:", oneMS);
-  });
+    frame->SetEvent(EventEnum::MOUSE_LEFT_CLICK_DOWN, lambda);
+  }
+  
+  // struct Temp
+  // {
+  // 	const char* event = "TEST_EVENT";
+  // 	double time = 0.f;
+  //   // void (*callback)(Temp*) = nullptr;
+  // 	std::function<void(Temp*)> callback = nullptr;
+  // 	Frame* frame;
+  // };
+  //
+  // // auto frame = Frame::CreateFrame("", "", "BACKGROUND", 0);
+  //
+  // // CreateFrameList();
+  // auto lambda = [&](auto* obj) // auto& obj
+  // {
+  //
+  // };
+  //
+  // Temp t;
+  // t.frame = Frame::CreateFrame("", "", "BACKGROUND", 0);
+  // t.callback = std::cref(lambda);
+  
+  // Code to test
+  double start = TimerSystem::GetTime();
+  for (int32 i = 1; i <= loopNum; i++)
+  {
+    // for (int32 n = 1; n <= 1000; n++)
+    // {
+    //   t.callback(&t);
+    // }
+    // Frame::Fire(EventEnum::GAME_PAUSE);
+    Frame::Fire(EventEnum::MOUSE_LEFT_CLICK_DOWN);
+  }
+  double stop = TimerSystem::GetTime();
+  
+  double totalMS = (stop - start) * 1000.f; // Total time in milliseconds
+  double MSper = totalMS / loopNum; // Milliseconds per iteration
+  double oneSecond = 1000.f / MSper; // How many iterations can be done in one second
+  double oneMS = oneSecond / 1000.f; // How many iterations can be done in one millisecond
+  
+  print("Total MS:", totalMS);
+  print("MS per:", MSper);
+  print("In 1 second:", oneSecond);
+  print("In 1 MS:", oneMS);
 }
 
 void UtilitySystem::finishPrint(FString str)
