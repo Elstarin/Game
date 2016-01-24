@@ -72,9 +72,14 @@ void AGameCharacter::SetupFrame()
 	frame = Frame::CreateFrame("Actor", "PlayerFrame", "BACKGROUND", 0);
 	frame->Hide();
 	
-	frame->SetEvent(EventEnum::MOUSE_LEFT_CLICK_DOWN, [](const auto& obj) // const auto& obj
+	frame->SetEvent(EventEnum::MOUSE_LEFT_CLICK_DOWN, [](const auto& obj)
 	{
-		print(TimerSystem::GetTime(), "Left click down", obj.event); // obj.event
+		// print(TimerSystem::GetTime(), "Left click down 1", obj->event);
+	});
+	
+	frame->SetEvent(EventEnum::MOUSE_LEFT_CLICK_DOWN, [](const auto& obj)
+	{
+		// print(TimerSystem::GetTime(), "Left click down 2", obj->event);
 	});
 	
 	// frame->SetEvent(EventEnum::MOUSE_LEFT_CLICK_UP, []()

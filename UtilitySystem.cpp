@@ -143,12 +143,15 @@ int32 UtilitySystem::ComplicatedGameDataAnalysis(){
         return 9000;
 }
 
-// TArray<Frame*> TestFrameList;
 void CreateFrameList()
 {
-  for (int32 i = 1; i <= 10000; i++)
+  for (int32 i = 1; i <= 1000; i++)
   {
     auto frame = Frame::CreateFrame("", "", "BACKGROUND", 0);
+    frame->SetEvent(EventEnum::MOUSE_LEFT_CLICK_DOWN, [](const auto& obj)
+    {
+    
+    });
   }
 }
 
@@ -168,65 +171,66 @@ void CreateFrameList()
 // void UtilitySystem::profileCode()
 void UtilitySystem::profileCode(UWorld* const World)
 {
-  // APlayerController* PlayerCon = UObject::GetOwningPlayerController();
-  // auto PlayerCon = UGameplayStatics::GetPlayerController(World, 0);
-  // auto PlayerCon = GetWorld()->GetFirstPlayerController();
+  if (!false) return; // If false, don't profile. If true, do profile.
   
-  // print("Creating frame list", Frame::GetNumFrames());
-  // CreateFrameList();
-
-  if (false) // Toggle this to easily disable profiling
-  {
-    TimerSystem::SetTimer(1, [](){
-      int32 loopNum = 1;
-      // loopNum = 100;
-      // loopNum = 1000; // 1k
-      // loopNum = 10000; // 10k
-      // loopNum = 100000; // 100k
-      // loopNum = 500000; // 500k
-      loopNum = 1000000; // 1m
-      // loopNum = 10000000; // 10m
-      // loopNum = 100000000; // 100m
-      
-      struct CallbackArgs
-      {
-        FString event = "TEST_EVENT";
-        // FString event1 = "TEST_EVENT";
-        // FString event2 = "TEST_EVENT";
-        // FString event3 = "TEST_EVENT";
-        // FString event4 = "TEST_EVENT";
-        // FString event5 = "TEST_EVENT";
-        // FString event6 = "TEST_EVENT";
-        // const char* event = "TEST_EVENT";
-        
-        // CallbackArgs(){print("Args constructed");}
-        // ~CallbackArgs(){print("Args destroyed");}
-      };
-      
-      // static TArray<TUniquePtr<CallbackArgs>> argArray;
-      // static TArray<CallbackArgs*> argArray;
-      
-      // Code to test
-      double start = TimerSystem::GetTime();
-      for (int32 i = 1; i <= loopNum; i++)
-      {
-        // argArray.Emplace(new CallbackArgs);
-        // argArray.Emplace(new CallbackArgs());
-        // Frame::Fire(EventEnum::GAME_PAUSE);
-      }
-      double stop = TimerSystem::GetTime();
-      
-      double totalMS = (stop - start) * 1000.f; // Total time in milliseconds
-      double MSper = totalMS / loopNum; // Milliseconds per iteration
-      double oneSecond = 1000.f / MSper; // How many iterations can be done in one second
-      double oneMS = oneSecond / 1000.f; // How many iterations can be done in one millisecond
-      
-      print("Total MS:", totalMS);
-      print("MS per:", MSper);
-      print("In 1 second:", oneSecond);
-      print("In 1 MS:", oneMS);
-    });
-  }
+  CreateFrameList();
+  
+  TimerSystem::SetTimer(0.1f, [](){
+    int32 loopNum = 1;
+    
+    // loopNum = 100;
+    // loopNum = 1000; // 1k
+    // loopNum = 10000; // 10k
+    // loopNum = 100000; // 100k
+    // loopNum = 500000; // 500k
+    loopNum = 1000000; // 1m
+    // loopNum = 10000000; // 10m
+    // loopNum = 100000000; // 100m
+    
+    struct Temp
+    {
+    	const char* event = "TEST_EVENT";
+    	double time = 0.f;
+      // void (*callback)(Temp*) = nullptr;
+    	std::function<void(Temp*)> callback = nullptr;
+    	Frame* frame;
+    };
+    
+    // auto frame = Frame::CreateFrame("", "", "BACKGROUND", 0);
+    
+    // CreateFrameList();
+    auto lambda = [&](auto* obj) // auto& obj
+    {
+    
+    };
+    
+    Temp t;
+    t.frame = Frame::CreateFrame("", "", "BACKGROUND", 0);
+    t.callback = std::cref(lambda);
+    
+    // Code to test
+    double start = TimerSystem::GetTime();
+    for (int32 i = 1; i <= loopNum; i++)
+    {
+      // for (int32 n = 1; n <= 1000; n++)
+      // {
+      //   t.callback(&t);
+      // }
+      // Frame::Fire(EventEnum::GAME_PAUSE);
+      Frame::Fire(EventEnum::MOUSE_LEFT_CLICK_DOWN);
+    }
+    double stop = TimerSystem::GetTime();
+    
+    double totalMS = (stop - start) * 1000.f; // Total time in milliseconds
+    double MSper = totalMS / loopNum; // Milliseconds per iteration
+    double oneSecond = 1000.f / MSper; // How many iterations can be done in one second
+    double oneMS = oneSecond / 1000.f; // How many iterations can be done in one millisecond
+    
+    print("Total MS:", totalMS);
+    print("MS per:", MSper);
+    print("In 1 second:", oneSecond);
+    print("In 1 MS:", oneMS);
+  });
 }
 
 void UtilitySystem::finishPrint(FString str)

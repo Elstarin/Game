@@ -5,6 +5,26 @@
 // #include <functional>
 #include <memory>
 
+// using FuncPtrType = void (*)(EventCallbackHolder);
+
+class Frame;
+
+using CallbackEventUPtrType = std::shared_ptr<struct EventCallbackHolder>;
+using CallbackEventFuncType = std::function<void(CallbackEventUPtrType)>;
+struct EventCallbackHolder
+{
+	
+	const char* event = "TEST_EVENT";
+	double time;
+	CallbackEventFuncType callback;
+	Frame* frame;
+	
+	EventCallbackHolder()
+	{
+		callback = nullptr;
+	}
+} eventHolder;
+
 enum EventEnum
 {
 	MOUSE_ENTER,
@@ -337,17 +357,14 @@ class GAME_API Frame
 		// typedef void (*FuncType)(Frame*);
 		// typedef std::unique_ptr<Frame*> Frame*;
 		
-		struct EventCallbackHolder
-		{
-			std::function<void(EventCallbackHolder)> callback; // Holds the callback function
-			const char* event = "TEST_EVENT";
-			double time;
-		};
 	public:
+		// typedef std::function<void(EventCallbackHolder*)> FuncType;
+		// using FuncType = std::function<void(EventCallbackHolder*)>;
+		
 		typedef TUniquePtr<Frame> FramePtrType;
 		typedef std::function<void()> FuncType;
-		// typedef std::function<void(Frame*)> FuncType;
-		TMap<EventEnum, EventCallbackHolder> EventMap;
+		// TMap<EventEnum, EventCallbackHolder> EventMap;
+		static TMap<EventEnum, TArray<CallbackEventUPtrType>> EventMultiMap;
 	private:
 		float w, h;
 		float x, y;
@@ -461,7 +478,7 @@ class GAME_API Frame
 	protected:
 		
 	public:
-		EventCallbackHolder OnUpdateScript;
+		// EventCallbackHolder OnUpdateScript;
 		FuncType OnUpdateFunc;
 		
 		TArray<TextureWidget*> TextureList;
@@ -508,22 +525,7 @@ class GAME_API Frame
 		/*--------------------------------------------------------------------------
 				Set functions
 		--------------------------------------------------------------------------*/
-		template<typename T>
-		void SetEvent(EventEnum event, T func)
-		{
-		  if (EventMap.Contains(event))
-			{
-				// If it already exists, replace the old function with this one
-				EventMap[event].callback = func;
-			}
-		  else
-			{
-				// Otherwise, create a new holder and add it both to the map
-				EventCallbackHolder holder;
-				holder.callback = func;
-				EventMap.Emplace(event, holder);
-			}
-		}
+		void SetEvent(EventEnum event, CallbackEventFuncType func);
 		
 		void Show();
 		void Hide();
