@@ -145,14 +145,14 @@ int32 UtilitySystem::ComplicatedGameDataAnalysis(){
 
 void CreateFrameList()
 {
-  for (int32 i = 1; i <= 1000; i++)
-  {
-    auto frame = Frame::CreateFrame("", "", "BACKGROUND", 0);
-    frame->SetEvent(EventEnum::MOUSE_LEFT_CLICK_DOWN, [](auto* obj)
-    {
-      
-    });
-  }
+  // for (int32 i = 1; i <= 1000; i++)
+  // {
+  //   auto frame = Frame::CreateFrame("", "", "BACKGROUND", 0);
+  //   frame->SetEvent(EventEnum::MOUSE_LEFT_CLICK_DOWN, [](auto* obj)
+  //   {
+  //
+  //   });
+  // }
 }
 
 // void IterateFrameList()
@@ -174,50 +174,25 @@ void UtilitySystem::profileCode(UWorld* const World)
   
   int32 loopNum = 1;
   
-  loopNum = 5;
+  // loopNum = 5;
   // loopNum = 100;
   // loopNum = 1000; // 1k
   // loopNum = 10000; // 10k
   // loopNum = 100000; // 100k
   // loopNum = 500000; // 500k
-  // loopNum = 1000000; // 1m
+  loopNum = 1000000; // 1m
   // loopNum = 10000000; // 10m
   // loopNum = 100000000; // 100m
-  
-  // CreateFrameList();
   
   for (int32 i = 1; i <= 1000; i++)
   {
     auto frame = Frame::CreateFrame("", "", "BACKGROUND", 0);
     
-    auto lambda = [](auto* obj)
+    frame->SetEvent(EventEnum::MOUSE_LEFT_CLICK_DOWN, [&](const auto& obj)
     {
     
-    };
-    
-    frame->SetEvent(EventEnum::MOUSE_LEFT_CLICK_DOWN, lambda);
+    });
   }
-  
-  // struct Temp
-  // {
-  // 	const char* event = "TEST_EVENT";
-  // 	double time = 0.f;
-  //   // void (*callback)(Temp*) = nullptr;
-  // 	std::function<void(Temp*)> callback = nullptr;
-  // 	Frame* frame;
-  // };
-  //
-  // // auto frame = Frame::CreateFrame("", "", "BACKGROUND", 0);
-  //
-  // // CreateFrameList();
-  // auto lambda = [&](auto* obj) // auto& obj
-  // {
-  //
-  // };
-  //
-  // Temp t;
-  // t.frame = Frame::CreateFrame("", "", "BACKGROUND", 0);
-  // t.callback = std::cref(lambda);
   
   // Code to test
   double start = TimerSystem::GetTime();

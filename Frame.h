@@ -10,22 +10,47 @@
 class Frame;
 
 using CallbackEventUPtrType = std::unique_ptr<struct EventCallbackHolder>;
-using CallbackEventFuncType = std::function<void(struct EventCallbackHolder*)>;
+using CallbackEventFuncType = std::function<void(struct EventCallbackHolder&)>;
 struct EventCallbackHolder
 {
 	const char* event = "TEST_EVENT";
 	double time = 0.f;
-	std::function<void(EventCallbackHolder*)> callback = nullptr;
+	// CallbackEventFuncType callback;
+	CallbackEventFuncType callback;
 	Frame* frame;
 	
-	EventCallbackHolder();
-	~EventCallbackHolder();
+	// EventCallbackHolder();
+	
+	// EventCallbackHolder (CallbackEventFuncType func) : callback(std::move(func))
+	// {
+	//
+	// }
+	
+	//takes lvalue and copy constructs to local var:
+	EventCallbackHolder (const CallbackEventFuncType & func, Frame* f) : callback(func), frame(f)
+	{
+		
+	}
+	
+	//takes rvalue and move constructs local var:
+	EventCallbackHolder (CallbackEventFuncType && func, Frame* f) : callback(std::move(func)), frame(std::move(f))
+	{
+		
+	}
+			
+	// EventCallbackHolder(const EventCallbackHolder& origin); // Copy constructor
+	// ~EventCallbackHolder();
 	
 	// void operator()()
 	// {
 	// 	callback(this);
 	// }
-} eventHolder;
+	private:
+		// EventCallbackHolder(const EventCallbackHolder = default;
+		// EventCallbackHolder& operator=(const EventCallbackHolder&) = default;
+		// EventCallbackHolder(const EventCallbackHolder&);
+		// EventCallbackHolder& operator=(const EventCallbackHolder&);
+};
 
 enum EventEnum
 {
@@ -366,7 +391,7 @@ class GAME_API Frame
 		typedef TUniquePtr<Frame> FramePtrType;
 		typedef std::function<void()> FuncType;
 		// TMap<EventEnum, EventCallbackHolder> EventMap;
-		static TMap<EventEnum, TArray<EventCallbackHolder>> EventMultiMap;
+		static TMap<EventEnum, TArray<CallbackEventUPtrType>> EventMultiMap;
 	private:
 		float w, h;
 		float x, y;
@@ -529,7 +554,7 @@ class GAME_API Frame
 		/*--------------------------------------------------------------------------
 				Set functions
 		--------------------------------------------------------------------------*/
-		void SetEvent(EventEnum event, std::function<void(EventCallbackHolder*)> func);
+		void SetEvent(EventEnum event, CallbackEventFuncType func);
 		
 		void Show();
 		void Hide();
