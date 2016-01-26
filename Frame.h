@@ -4,56 +4,15 @@
 
 // #include <functional>
 #include <memory>
+#include <tuple>
 
 // using FuncPtrType = void (*)(EventCallbackHolder);
 
 class Frame;
 
-using CallbackEventUPtrType = std::unique_ptr<struct EventCallbackHolder>;
-using CallbackEventFuncType = std::function<void(struct EventCallbackHolder&)>;
-struct EventCallbackHolder
-{
-	const char* event = "TEST_EVENT";
-	double time = 0.f;
-	// CallbackEventFuncType callback;
-	CallbackEventFuncType callback;
-	Frame* frame;
-	
-	// EventCallbackHolder();
-	
-	// EventCallbackHolder (CallbackEventFuncType func) : callback(std::move(func))
-	// {
-	//
-	// }
-	
-	//takes lvalue and copy constructs to local var:
-	EventCallbackHolder (const CallbackEventFuncType & func, Frame* f) : callback(func), frame(f)
-	{
-		
-	}
-	
-	//takes rvalue and move constructs local var:
-	EventCallbackHolder (CallbackEventFuncType && func, Frame* f) : callback(std::move(func)), frame(std::move(f))
-	{
-		
-	}
-			
-	// EventCallbackHolder(const EventCallbackHolder& origin); // Copy constructor
-	// ~EventCallbackHolder();
-	
-	// void operator()()
-	// {
-	// 	callback(this);
-	// }
-	private:
-		// EventCallbackHolder(const EventCallbackHolder = default;
-		// EventCallbackHolder& operator=(const EventCallbackHolder&) = default;
-		// EventCallbackHolder(const EventCallbackHolder&);
-		// EventCallbackHolder& operator=(const EventCallbackHolder&);
-};
-
 enum EventEnum
 {
+	TESTING_EVENT, // A dummy event for testing purposes
 	MOUSE_ENTER,
 	MOUSE_EXIT,
 	MOUSE_CLICKED_DOWN,
@@ -361,6 +320,51 @@ enum EventEnum
 	KEY_UP_Section,
 };
 
+template<class... Args>
+using SavedTupleType = std::tuple<Args...>;
+
+template <typename... Args>
+struct SavedTuple
+{
+  std::tuple<Args...> params; // Where the tuple will be stored
+
+	// Accepts a tuple with a param pack
+  void SetParams(std::tuple<Args...> t)
+  {
+    params = t;
+  }
+  
+	// Returns the stored tuple
+  auto GetParams()
+  {
+    return params;
+  }
+};
+
+template <class... Args>
+auto CreateSavedTuple(Args... args)
+{
+  auto t = std::make_tuple(args...); // Create the actual tuple
+  
+  SavedTuple<Args...> saved; // Create the object to hold it
+  saved.SetParams(t);
+  
+  return saved;
+}
+
+using CallbackEventUPtrType = std::unique_ptr<struct EventCallbackHolder>;
+using CallbackEventFuncType = std::function<void(struct EventCallbackHolder&)>;
+struct EventCallbackHolder
+{
+	const char* event;
+	double time;
+	CallbackEventFuncType callback;
+	Frame* frame;
+	// SavedTuple extra;
+	
+	EventCallbackHolder(const CallbackEventFuncType& func, Frame* f, EventEnum event);
+};
+
 enum Anchors
 {
 	TOPLEFT,
@@ -390,8 +394,7 @@ class GAME_API Frame
 		
 		typedef TUniquePtr<Frame> FramePtrType;
 		typedef std::function<void()> FuncType;
-		// TMap<EventEnum, EventCallbackHolder> EventMap;
-		static TMap<EventEnum, TArray<CallbackEventUPtrType>> EventMultiMap;
+		static TMap<EventEnum, TArray<CallbackEventUPtrType>> EventMap;
 	private:
 		float w, h;
 		float x, y;
@@ -586,6 +589,7 @@ class GAME_API Frame
     static void IterateOnUpdateList();
 		static void Fire(EventEnum event);
 		void FireToFrame(EventEnum event);
+		static Frame* FindFrame(FString searchString);
 		
 		TextureWidget* CreateTexture();
 		TextWidget* CreateText();

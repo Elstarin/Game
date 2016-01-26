@@ -11,8 +11,8 @@ TArray<Frame*> Frame::FrameList;
 TArray<Frame*> Frame::Level::FrameList;
 TArray<Frame::ScriptStruct> Frame::OnUpdateList;
 TMap<int32, Frame::Level> Frame::Strata::LevelMap;
-TMap<EventEnum, TArray<CallbackEventUPtrType>> Frame::EventMultiMap;
-// TMultiMap<EventEnum, EventCallbackHolder> Frame::EventMultiMap;
+TMap<EventEnum, TArray<CallbackEventUPtrType>> Frame::EventMap;
+// TMultiMap<EventEnum, EventCallbackHolder> Frame::EventMap;
 
 Frame::Frame()
 {
@@ -55,21 +55,74 @@ Frame::~Frame()
   frameCount--;
 }
 
-// EventCallbackHolder::EventCallbackHolder() : callback()
-// {
-//   // CallbackEventFuncType& func
-//   // CallbackEventFuncType callback;
-//   print("Creating holder");
-// }
-
-// EventCallbackHolder::EventCallbackHolder(const EventCallbackHolder& origin) // : _atomicVar(0) //zero-initialize _atomicVar
-// {
-// }
-
-// EventCallbackHolder::~EventCallbackHolder()
-// {
-//   print("Destroying holder");
-// }
+EventCallbackHolder::EventCallbackHolder(const CallbackEventFuncType& func, Frame* f, EventEnum event) :
+  callback(func), // Set the callback to the passed function
+  frame(f), // Set the pointer to the frame
+  time(0.f) // Default the time to 0
+{
+  // If we want to set any extra arguments to specific events, that can be done in this switch statement
+  switch (event)
+  {
+    case EventEnum::TESTING_EVENT:
+      this->event = "TESTING_EVENT";
+      break;
+    case EventEnum::MOUSE_ENTER:
+      this->event = "MOUSE_ENTER";
+      break;
+    case EventEnum::MOUSE_EXIT:
+      this->event = "MOUSE_EXIT";
+      break;
+    case EventEnum::MOUSE_LEFT_CLICK_DOWN:
+      this->event = "MOUSE_LEFT_CLICK_DOWN";
+      break;
+    case EventEnum::MOUSE_LEFT_CLICK_UP:
+      this->event = "MOUSE_LEFT_CLICK_UP";
+      break;
+    case EventEnum::MOUSE_RIGHT_CLICK_DOWN:
+      this->event = "MOUSE_RIGHT_CLICK_DOWN";
+      break;
+    case EventEnum::MOUSE_RIGHT_CLICK_UP:
+      this->event = "MOUSE_RIGHT_CLICK_UP";
+      break;
+    case EventEnum::UPDATE:
+      this->event = "UPDATE";
+      break;
+    case EventEnum::FRAME_CREATED:
+      this->event = "FRAME_CREATED";
+      break;
+    case EventEnum::GAME_START:
+      this->event = "GAME_START";
+      break;
+    case EventEnum::GAME_STOP:
+      this->event = "GAME_STOP";
+      break;
+    case EventEnum::KEY_DOWN:
+      this->event = "KEY_DOWN";
+      break;
+    case EventEnum::KEY_UP:
+      this->event = "KEY_UP";
+      break;
+    case EventEnum::MOUSE_MOVING:
+      this->event = "MOUSE_MOVING";
+      break;
+    case EventEnum::WINDOW_FOCUS_GAINED:
+      this->event = "WINDOW_FOCUS_GAINED";
+      break;
+    case EventEnum::WINDOW_FOCUS_LOST:
+      this->event = "WINDOW_FOCUS_LOST";
+      break;
+    case EventEnum::DRAWING:
+      this->event = "DRAWING";
+      break;
+    case EventEnum::SCORE_UPDATE:
+      this->event = "SCORE_UPDATE";
+      break;
+    default:
+      print("Need an event string for:", event);
+      this->event = "EVENT_STRING_NOT_SET";
+      break;
+  }
+}
 
 void Frame::DeleteFrame()
 {
@@ -133,85 +186,29 @@ void Frame::SetEvent(EventEnum event, CallbackEventFuncType func)
 {
   // If the check passes, then no frame has registered for this event before,
   // and the array to hold the EventCallbackHolder objects needs to be created
-  if (!EventMultiMap.Contains(event))
+  if (!EventMap.Contains(event))
   {
     TArray<CallbackEventUPtrType> arr; // Create a new array of unique pointers
     // TArray<CallbackEventUPtrType> arr;
-    EventMultiMap.Emplace(event, std::move(arr)); // Add it to the map
-    // EventMultiMap.Emplace(event, arr); // Add it to the map
+    EventMap.Emplace(event, std::move(arr)); // Add it to the map
+    // EventMap.Emplace(event, arr); // Add it to the map
   }
   else
   {
     // Iterate through every holder for this event
-    for (auto& holder : EventMultiMap[event])
+    for (auto& holder : EventMap[event])
     {
       // Check if this frame is already registered for this event
       if (holder->frame == this)
       {
-        // holder->callback = func; // Replace the old callback with the new one
-        // holder.callback = std::cref(func); // Replace the old callback with the new one
+        holder->callback = func; // Replace the old callback with the new one
         return; // Return to avoid creating and adding another holder object for the same frame
       }
     }
   }
   
-  EventMultiMap[event].Emplace(std::make_unique<EventCallbackHolder>(func, this)); // Add a reference to the holder to the event's array
-  
-  // // If we want to set any extra arguments to specific events, that can be done in this switch statement
-  // switch (event)
-  // {
-  //   case EventEnum::MOUSE_EXIT:
-  //     holder->event = "MOUSE_EXIT";
-  //     break;
-  //   case EventEnum::MOUSE_LEFT_CLICK_DOWN:
-  //     holder->event = "MOUSE_LEFT_CLICK_DOWN";
-  //     break;
-  //   case EventEnum::MOUSE_LEFT_CLICK_UP:
-  //     holder->event = "MOUSE_LEFT_CLICK_UP";
-  //     break;
-  //   case EventEnum::MOUSE_RIGHT_CLICK_DOWN:
-  //     holder->event = "MOUSE_RIGHT_CLICK_DOWN";
-  //     break;
-  //   case EventEnum::MOUSE_RIGHT_CLICK_UP:
-  //     holder->event = "MOUSE_RIGHT_CLICK_UP";
-  //     break;
-  //   case EventEnum::UPDATE:
-  //     holder->event = "UPDATE";
-  //     break;
-  //   case EventEnum::FRAME_CREATED:
-  //     holder->event = "FRAME_CREATED";
-  //     break;
-  //   case EventEnum::GAME_START:
-  //     holder->event = "GAME_START";
-  //     break;
-  //   case EventEnum::GAME_STOP:
-  //     holder->event = "GAME_STOP";
-  //     break;
-  //   case EventEnum::KEY_DOWN:
-  //     holder->event = "KEY_DOWN";
-  //     break;
-  //   case EventEnum::KEY_UP:
-  //     holder->event = "KEY_UP";
-  //     break;
-  //   case EventEnum::MOUSE_MOVING:
-  //     holder->event = "MOUSE_MOVING";
-  //     break;
-  //   case EventEnum::WINDOW_FOCUS_GAINED:
-  //     holder->event = "WINDOW_FOCUS_GAINED";
-  //     break;
-  //   case EventEnum::WINDOW_FOCUS_LOST:
-  //     holder->event = "WINDOW_FOCUS_LOST";
-  //     break;
-  //   case EventEnum::DRAWING:
-  //     holder->event = "DRAWING";
-  //     break;
-  //   case EventEnum::SCORE_UPDATE:
-  //     holder->event = "SCORE_UPDATE";
-  //     break;
-  //   default:
-  //     holder->event = "UNKNOWN_EVENT";
-  //     break;
-  // }
+  // Create a unique_ptr callback holder and pass the values to its constructor
+  EventMap[event].Emplace(std::make_unique<EventCallbackHolder>(func, this, event));
 }
 
 /*------------------------------------------------------------------------------
@@ -509,26 +506,31 @@ void Frame::SetPoint(Anchors nAnchor, Frame* nRelativeTo, Anchors nRelative, flo
 
 void Frame::FireToFrame(EventEnum event)
 {
-  // if (this && this != nullptr && this->EventMap.Contains(event)) // Check if it has the event
-  // {
-  //   // this->EventMap[event].time = TimerSystem::GetTime(); // Update the time
-  //   // this->EventMap[event].callback(this->EventMap[event]); // Call the event and pass the object
-  // }
-  // else
-  // {
-  //   print("FireToFrame failed!");
-  // }
+  if (this && EventMap.Contains(event)) // Make sure the frame exists and that the event has been registered
+  {
+    // Iterate through each holder for this event
+    for (auto& holder : EventMap[event])
+    {
+      // Find the holder for this particular frame
+      if (holder->frame == this)
+      {
+        holder->time = TimerSystem::GetTime(); // Update the time to current time
+        holder->callback(*holder); // Call the event and pass the holder object
+        return; // Return to avoid wasting time
+      }
+    }
+  }
 }
 
 void Frame::Fire(EventEnum event)
 {
   // Check if this event is registered
-  if (EventMultiMap.Contains(event))
+  if (EventMap.Contains(event))
   {
     auto cTime = TimerSystem::GetTime();
     
     // Iterate through each holder that is set for this event
-    for (auto& holder : EventMultiMap[event])
+    for (auto& holder : EventMap[event])
     {
       holder->time = cTime; // Update the time to current time
       holder->callback(*holder); // Call the event and pass the holder object
@@ -646,4 +648,17 @@ Frame::TextWidget* Frame::CreateText()
   // print("Creating text object.");
   
   return text;
+}
+
+Frame* Frame::FindFrame(FString searchString)
+{
+  for (const auto& frame : FrameList)
+  {
+    if (searchString == frame->GetName())
+    {
+      return frame; // Found a frame with this name
+    }
+  }
+  
+  return nullptr; // Couldn't find a frame with this name, returning nullptr
 }

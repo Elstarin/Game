@@ -170,7 +170,7 @@ void CreateFrameList()
 
 void UtilitySystem::profileCode(UWorld* const World)
 {
-  if (!true) return; // If false, don't profile. If true, do profile.
+  if (!false) return; // If false, don't profile. If true, do profile.
   
   int32 loopNum = 1;
   

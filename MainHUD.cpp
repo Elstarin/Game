@@ -327,111 +327,23 @@ void AMainHUD::DrawPrintBox()
 	// DrawJoyRect(Canvas->SizeX / 2 - 100, Canvas->SizeY / 2 - 50, 200, 100, FLinearColor(0, 0, 1, 0.2333));
 }
 
-// template <typename T, typename... A>
-// using TestFuncType = std::function<void(Frame*, ...)>;
-// using TestFuncType = std::function<void(...)>;
-// typedef std::function<void(Frame*)> TestFuncType;
-
-struct CallbackArgs
-{
-  FString event = "TEST_EVENT";
-  // const char* event = "TEST_EVENT";
-  
-  CallbackArgs(){print("Args constructed");}
-  ~CallbackArgs(){print("Args destroyed");}
-};
-
-typedef std::function<void(Frame*, CallbackArgs*)> TestFuncType;
-// typedef std::function<void(Frame*, std::unique_ptr<CallbackArgs>)> TestFuncType;
-// typedef std::function<void(Frame*)> TestFuncType;
-
-// void GenerateGUID(char* const GUID, const int32 length)
-// {
-//   static const char* const alphabet = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
-//   static const char* const alphabetL = "abcdefghijklmnopqrstuvwxyz";
-//   static const char* const alphabetU = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-//   static const char* const numbers = "0123456789";
-//
-//   // const int32 length = 25;
-//   // char GUID[length]; // The char array that will hold the newly generated GUID
-//   const int32 split = length / 5;
-//
-//   for (int32 i = 0; i < (length - 1); i++)
-//   {
-//     // Every split number of characters, add a '-', but not when it's near the end
-//     if (((i + split) <= length) && ((i % (split + 1)) == split))
-//     {
-//       GUID[i] = '-';
-//     }
-//     // If this passes, use a letter. Numbers should be more common, looks better
-//     else if (FMath::RandRange(0, 2) == 0)
-//     {
-//       // If it passes, use a lower case letter. If not, use upper case
-//       if (FMath::RandRange(0, 1) == 1)
-//       {
-//         GUID[i] = alphabetL[FMath::RandRange(0, 25)]; // Pick a random lower case letter
-//       }
-//       else
-//       {
-//         GUID[i] = alphabetU[FMath::RandRange(0, 25)]; // Pick a random upper case letter
-//       }
-//     }
-//     // Was 1 or 2, use a number instead
-//     else
-//     {
-//       GUID[i] = numbers[FMath::RandRange(0, 9)]; // Pick a random number
-//     }
-//   }
-//
-//   GUID[length - 1] = '\0'; // Make sure the last char is the null character
-// }
-
-// void GenerateGUID(char* const GUID, const int32 length)
-// {
-//   static const char* const alphabet = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
-//   // static const char* const alphabetL = "abcdefghijklmnopqrstuvwxyz";
-//   // static const char* const alphabetU = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-//   static const char* const numbers = "0123456789";
-//
-//   // const int32 length = 25;
-//   // char GUID[length]; // The char array that will hold the newly generated GUID
-//   const int32 split = length / 5;
-//
-//   for (int32 i = 0; i < (length - 1); i++)
-//   {
-//     // Every split number of characters, add a '-', but not when it's near the end
-//     if (((i + split) <= length) && ((i % (split + 1)) == split))
-//     {
-//       GUID[i] = '-';
-//     }
-//     // If this passes, use a number. Numbers should be more common, looks better
-//     else if (FMath::RandRange(0, 100) >= 70)
-//     {
-//       GUID[i] = numbers[FMath::RandRange(0, 9)]; // Pick a random number
-//     }
-//     // Otherwise, use a letter
-//     else
-//     {
-//       GUID[i] = alphabet[FMath::RandRange(0, 51)]; // Pick a random letter
-//     }
-//   }
-//
-//   GUID[length - 1] = '\0'; // Make sure the last char is the null character
-// }
-
 void AMainHUD::Startup()
 {
-  static bool hasRun = false;
-  if (hasRun) return;
-  hasRun = true;
+  if (!FIRST_RUN) return;
+  
+  // auto x = 42ns;
+  // print(x);
+  
+  // auto f ( double ) -> int;
+  
+  // f(37.f);
+  // print(f);
   
   // {
   //   char GUID[25];
   //   GenerateGUID(GUID, 25);
   //   print(GUID);
   // }
-  
-  // UE_LOG(Main, Warning, TEXT("Startup..."));
   
   auto f1 = Frame::CreateFrame("2D", "Frame1", "BACKGROUND", 0);
   f1->SetPosition(200, 200);
@@ -441,89 +353,24 @@ void AMainHUD::Startup()
   
   auto text = f1->CreateText();
   
-  // f1->OnUpdate([](auto f)
-  // {
-  //   print("Update");
-  // });
+  f1->SetEvent(MOUSE_ENTER, [](const auto& args)
+  {
+    float r = FMath::FRandRange(0, 1);
+    float g = FMath::FRandRange(0, 1);
+    float b = FMath::FRandRange(0, 1);
   
-  // f1->Set_MOUSE_ENTER([](auto f)
-  // {
-  //   float r = FMath::FRandRange(0, 1);
-  //   float g = FMath::FRandRange(0, 1);
-  //   float b = FMath::FRandRange(0, 1);
-  //
-  //   f->SetColor(r, g, b, 1.f);
-  // });
+    args.frame->SetColor(r, g, b, 1.f);
+  });
   
-  // f1->Set_MOUSE_EXIT([](auto f)
-  // {
-  //   f->SetColor(1.f, 1.f, 1.f, 1.f);
-  // });
+  f1->SetEvent(MOUSE_EXIT, [](const auto& args)
+  {
+    args.frame->SetColor(1.f, 1.f, 1.f, 1.f);
+  });
   
-  // auto f2 = Frame::CreateFrame("2D", "Frame2", "BACKGROUND", 0);
-  // f2->SetPosition(0, 0);
-  // f2->SetSize(250, 100);
-  // f2->SetColor(0, 0, 0, 1);
-  //
-  // f2->SetPoint(Anchors::BOTTOMRIGHT, f1, Anchors::BOTTOMRIGHT, 0, 0);
-  
-  // auto lambda = [&](auto f, auto args)
-  // {
-  //   // print(args.event);
-  // };
-  
-  // auto lambda = [&]()
-  // {
-  //   TUniquePtr<CallbackArgs> args(new CallbackArgs);
-  //   print("Called");
-  //
-  //   return args;
-  // };
-  //
-  // auto passedArgs = lambda();
-  // print(&passedArgs);
-  // print(passedArgs->event);
-  
-  // TestFuncType temp;
-  
-  // CallbackArgs args;
-  // print("Size:", sizeof(temp), sizeof(lambda), sizeof(args));
-  // temp(f1, args);
-  
-  // typedef TUniquePtr<CallbackArgs> ArgUniquePtr;
-  // static TArray<TUniquePtr<CallbackArgs>> argArray;
-  //
-  // TimerSystem::SetTicker(0.1, [&](auto ticker)
-  // {
-  //   static TestFuncType temp = lambda;
-  //
-  //   // TUniquePtr<CallbackArgs> args(new CallbackArgs);
-  //
-  //   // CallbackArgs args;
-  //   // CallbackArgs* args = new CallbackArgs();
-  //   // CallbackArgs* argsPtr;
-  //
-  //   // argArray.Emplace(args->Release());
-  //   // argArray.Emplace(new CallbackArgs);
-  //
-  //   // temp(f1, args);
-  //
-  //   // delete args;
-  // }, 3);
-  //
-  // TimerSystem::SetTimer(0.5, [&]()
-  // {
-  //   argArray[1]->event = "SET EVENT";
-  //
-  //   print("Running loop");
-  //
-  //   int32 i = 0;
-  //   for (const auto& arg : argArray)
-  //   {
-  //     i++;
-  //     print("Result:", i, arg->event);
-  //   }
-  // });
+  f1->SetEvent(UPDATE, [](const auto& args)
+  {
+    // print(args.event);
+  });
 }
 
 void AMainHUD::CheckMouseoverFrames(Frame* f, int32 left, int32 right, int32 top, int32 bottom)
@@ -668,6 +515,8 @@ void AMainHUD::CheckMouseoverFrames(Frame* f, int32 left, int32 right, int32 top
 ------------------------------------------------------------------------------*/
 void AMainHUD::DrawFrames()
 {
+  Frame::Fire(UPDATE);
+  
   // TArray<EKeys::Type> GameControlKeys;
   
   TimerSystem::IterateTimerArrays();

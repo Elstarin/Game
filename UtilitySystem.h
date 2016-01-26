@@ -25,8 +25,8 @@
 // // General Log
 // DECLARE_LOG_CATEGORY_EXTERN(YourLog, Log, All);
 
-// Main log
-DEFINE_LOG_CATEGORY_STATIC(Main, Warning, All);
+// // Main log
+// DEFINE_LOG_CATEGORY_STATIC(Main, Warning, All);
 
 extern TArray<FString> FStrPrintArray;
 extern double Time;
@@ -70,6 +70,7 @@ class GAME_API UtilitySystem : public UObject
 /*------------------------------------------------------------------------------
 		Convert to FString overload functions
 ------------------------------------------------------------------------------*/
+
 // namespace // Unnamed namespace
 // {
 //   inline FString convert(){
@@ -177,31 +178,6 @@ class GAME_API UtilitySystem : public UObject
 //   }
 // }
 
-// inline FString convert();
-// inline FString convert(FString x);
-// inline FString* convert(FString* x);
-// inline FString convert(const char* x);
-// // inline FString convert(std::string x);
-// inline FString convert(bool x);
-// inline FString convert(int32 x);
-// inline FString convert(int8 x);
-// inline FString convert(int16 x);
-// inline FString convert(int64 x);
-// inline FString convert(uint8 x);
-// inline FString convert(uint16 x);
-// inline FString convert(uint32 x);
-// inline FString convert(uint64 x);
-// inline FString convert(double x);
-// inline FString convert(float x);
-// inline FString convert(FVector x);
-// inline FString convert(FVector2D x);
-// inline FString convert(FRotator x);
-// inline FString convert(FLinearColor x);
-// inline FString convert(UObject x);
-// inline FString convert(AActor x);
-// inline FString convert(AActor* x);
-// inline FString convert(void* x);
-
 extern inline FString convert();
 extern inline FString convert(FString x);
 extern inline FString* convert(FString* x);
@@ -245,7 +221,7 @@ void print(T value)
 }
 
 template <typename T, typename... Args>
-void print(T value, Args... args) // Recursive variadic function
+void print(T value, Args... args)
 {
 	// Catch each value and store it up in printStr
   printStr += (convert(value) + FString(" "));
@@ -265,3 +241,16 @@ void print(T value, Args... args) // Recursive variadic function
 // std::string type_name(){
 //   return type_name<First>() + " " + type_name<Second, Rest...>();
 // }
+
+// As the name implies, these two functions are used for iterating over a tuple
+// call it with a lambda, like: IterateTuple(tuple, [](const auto& x){}
+template<class F, class...Ts, std::size_t...Is>
+void IterateTuple(const std::tuple<Ts...> & tuple, F func, std::index_sequence<Is...>){
+  using expander = int[];
+  (void)expander { 0, ((void)func(std::get<Is>(tuple)), 0)... };
+}
+
+template<class F, class...Ts>
+void IterateTuple(const std::tuple<Ts...> & tuple, F func){
+  IterateTuple(tuple, func, std::make_index_sequence<sizeof...(Ts)>());
+}
