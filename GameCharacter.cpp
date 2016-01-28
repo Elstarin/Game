@@ -12,6 +12,7 @@
 		~ Melee weapons can sweep through all targets?
 ------------------------------------------------------------------------------*/
 Frame* AGameCharacter::frame;
+APlayerController* AGameCharacter::ThePlayerController;
 
 /*------------------------------------------------------------------------------
 		Main constructor
@@ -61,6 +62,25 @@ AGameCharacter::AGameCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	MuzzleOffset = FVector(80.0f, 0.0f, -30.0f);
 	
 	SetupFrame();
+	
+	auto PlayerPtr = this;
+	
+	auto lambda = [&]()
+	{
+		return PlayerPtr;
+	};
+	
+	// ThePlayerController = GetOwningPlayerController();
+	ThePlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	// ThePlayerController = GetWorld()->GetFirstPlayerController();
+	// GetWorld()->GetFirstPlayerController()
+	
+	// ThePlayerPtr = *this;
+}
+
+APlayerController* AGameCharacter::GetPlayer()
+{
+	return ThePlayerController;
 }
 
 void AGameCharacter::SetupFrame()
@@ -337,6 +357,11 @@ void AGameCharacter::ZoomOut()
 /*------------------------------------------------------------------------------
 		Tick
 ------------------------------------------------------------------------------*/
+enum Distances
+{
+	
+};
+
 void AGameCharacter::Tick(float DeltaTime)
 {
 	// //Rotate our actor's yaw, which will turn our camera because we're attached to it
@@ -344,14 +369,165 @@ void AGameCharacter::Tick(float DeltaTime)
   // NewRotation.Yaw += CameraInput.X;
   // SetActorRotation(NewRotation);
 	
-	FRotator ActorRotation = GetActorRotation();
+	{
+		// FRotator ActorRotation = GetActorRotation();
+		//
+		// //Rotate our camera's pitch, but limit it so we're always looking downward
+		// FRotator NewRotation = CameraBoom->GetComponentRotation();
+		// NewRotation.Pitch = ActorRotation.Pitch;
+		// // NewRotation.Pitch = FMath::Clamp(NewRotation.Pitch + CameraInput.Y, -80.0f, -15.0f);
+		// SetActorRotation(NewRotation);
+		// // CameraBoom->SetWorldRotation(NewRotation);
+	}
 	
-	//Rotate our camera's pitch, but limit it so we're always looking downward
-  FRotator NewRotation = CameraBoom->GetComponentRotation();
-  NewRotation.Pitch = ActorRotation.Pitch;
-  // NewRotation.Pitch = FMath::Clamp(NewRotation.Pitch + CameraInput.Y, -80.0f, -15.0f);
-	SetActorRotation(NewRotation);
-  // CameraBoom->SetWorldRotation(NewRotation);
+	static FVector playerLocation;
+	static FVector otherActorLocation;
+	static float distance;
+	
+	playerLocation = GetActorLocation(); // Update the player's location
+	static FBox playerBox;
+	playerBox = GetComponentsBoundingBox();
+	
+	float closestObj = -1.f;
+	static AActor* closestActor;
+	
+	FVector center;
+	FVector extents;
+	playerBox.GetCenterAndExtents(center, extents);
+	center += extents;
+	
+	// void DrawDebugCircle(const UWorld* InWorld, FVector Center, float Radius, int32 Segments, const FColor& Color, bool bPersistentLines = false, float LifeTime=-1.f, uint8 DepthPriority = 0, float Thickness = 0.f, FVector YAxis=FVector(0.f,1.f,0.f), FVector ZAxis=FVector(0.f,0.f,1.f), bool bDrawAxis=true);
+	
+	FVector playerFeet = playerLocation;
+	playerFeet.Z = playerLocation.Z - 80.f;
+	
+	DrawDebugCircle(
+		GetWorld(), // World
+		playerFeet, // FVector for center
+		60.f, // Float for radius
+		24, // int32 for segments
+		FColor(255, 0, 0), // Color
+		false, // Bool for persistent lines
+		0.01f, // float for lifetime
+		0, // uint8 for Depth priority
+		2.f, // Float for line thickness
+		FVector(0.f, 1.f, 0.f), // FVector for Y Axis
+		FVector(1.f, 0.f, 0.f), // FVector for Z Axis
+		false // Bool for draw axis
+	);
+	
+	DrawDebugCircle(
+		GetWorld(), // World
+		playerLocation, // FVector for center
+		60.f, // Float for radius
+		24, // int32 for segments
+		FColor(255, 0, 0), // Color
+		false, // Bool for persistent lines
+		0.01f, // float for lifetime
+		0, // uint8 for Depth priority
+		2.f, // Float for line thickness
+		FVector(0.f, 1.f, 0.f), // FVector for Y Axis
+		FVector(1.f, 0.f, 0.f), // FVector for Z Axis
+		false // Bool for draw axis
+	);
+	
+	// print(playerBox.GetExtent());
+	
+	int32 count = 1;
+	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr )
+	{
+		static AActor* actor;
+		actor = static_cast<AActor*>(*ActorItr);
+		
+		if (actor->GetName() == "Brush_0") continue;
+		
+		// otherActorLocation = ActorItr->GetActorLocation();
+		
+		// auto distance = FVector::Dist(playerLocation, otherActorLocation);
+		
+		static FBox box;
+		box = actor->GetComponentsBoundingBox();
+		auto volume = box.GetVolume();
+		
+		if (box.IsValid && volume > 0.f && actor != this) // Make sure it has a volume
+		{
+			// GetCenterAndExtents
+			distance = GetDistanceTo(actor);
+			
+			// Intersect
+			
+			// auto closestPoint = playerBox.GetClosestPointTo(playerBox.GetSize());
+			
+			// auto distSquared = box.ComputeSquaredDistanceToPoint(playerLocation);
+			
+			// ((In.X > Min.X) && (In.X < Max.X) && (In.Y > Min.Y) && (In.Y < Max.Y) && (In.Z > Min.Z) && (In.Z < Max.Z));
+			
+			auto distSquared = box.ComputeSquaredDistanceToPoint(playerLocation);
+			
+			if (closestObj == -1.f)
+			{
+				closestObj = distSquared;
+			}
+			
+			if (distSquared < closestObj)
+			{
+				closestObj = distSquared;
+				closestActor = actor;
+			}
+			
+			// print(actor->GetName(), distSquared);
+			
+			if (2000 >= distSquared || box.IsInsideOrOn(playerLocation))
+			{
+				print("Collision with:", actor->GetName());
+			}
+			
+			FVector actorCenter;
+			FVector actorExtents;
+			box.GetCenterAndExtents(actorCenter, actorExtents);
+			// center += extents;
+			
+			// void DrawDebugBox(GetWorld(), FVector const& Center, FVector const& Box, FColor const& Color, bool bPersistentLines, float LifeTime, uint8 DepthPriority)
+			DrawDebugBox(GetWorld(), actorCenter, actorExtents, FColor(255, 0, 0), false, 0.1f);
+			// DrawDebugBox(GetWorld(), actorCenter, box.GetSize(), FColor(255, 0, 0));
+			
+			// if (actor == this)
+			// {
+			// 	print("Match");
+			// }
+			
+			// DrawDebugSphere(
+			// 	GetWorld(),
+			// 	playerLocation,
+			// 	60,
+			// 	6,
+			// 	FColor(255, 0, 0)
+			// );
+			
+			// DrawDebugLine(GetWorld(), playerLocation, playerLocation + 20, FColor::Red, false, 2.f, 0, 3.f);
+			// print(actor->GetName(), center);
+		}
+		
+		count++;
+	}
+	
+	if (closestActor != nullptr)
+	{
+		// DrawDebugLine(GetWorld(), playerLocation, playerLocation + 20, FColor::Red, false, 2.f, 0, 3.f);
+		// print(closestActor->GetName(), closestObj);
+	}
+	
+	// UWorld* GameWorld = GetWorld(); //set this somehow, from another UObject or pass it in as parameter
+	//
+	// for(TObjectIterator<UYourObject> Itr; Itr; ++Itr)
+	// {
+	//   if(Itr->GetWorld() != GameWorld) // World Check
+	//   {
+	//     continue;
+	//   }
+	//
+	//
+	// }
 }
 /*------------------------------------------------------------------------------
 		Events
@@ -390,4 +566,10 @@ void AGameCharacter::OnOverlapEnd(class AActor* OtherActor, class UPrimitiveComp
   {
 		// PointLight->SetVisibility(false);
   }
+};
+
+FVector AGameCharacter::GetPlayerLocation()
+{
+	// return ThePlayerController->GetActorLocation();
+	return GetActorLocation();
 };

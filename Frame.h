@@ -2,17 +2,18 @@
 
 #pragma once
 
-// #include <functional>
 #include <memory>
 #include <tuple>
+// #include "boost/any.hpp"
 
 // using FuncPtrType = void (*)(EventCallbackHolder);
 
 class Frame;
+// using FrameUPtrType = std::unique_ptr<class Frame>;
 
 enum EventEnum
 {
-	TESTING_EVENT, // A dummy event for testing purposes
+	TESTING_EVENT = 0, // A dummy event for testing purposes
 	MOUSE_ENTER,
 	MOUSE_EXIT,
 	MOUSE_CLICKED_DOWN,
@@ -320,38 +321,6 @@ enum EventEnum
 	KEY_UP_Section,
 };
 
-template<class... Args>
-using SavedTupleType = std::tuple<Args...>;
-
-template <typename... Args>
-struct SavedTuple
-{
-  std::tuple<Args...> params; // Where the tuple will be stored
-
-	// Accepts a tuple with a param pack
-  void SetParams(std::tuple<Args...> t)
-  {
-    params = t;
-  }
-  
-	// Returns the stored tuple
-  auto GetParams()
-  {
-    return params;
-  }
-};
-
-template <class... Args>
-auto CreateSavedTuple(Args... args)
-{
-  auto t = std::make_tuple(args...); // Create the actual tuple
-  
-  SavedTuple<Args...> saved; // Create the object to hold it
-  saved.SetParams(t);
-  
-  return saved;
-}
-
 using CallbackEventUPtrType = std::unique_ptr<struct EventCallbackHolder>;
 using CallbackEventFuncType = std::function<void(struct EventCallbackHolder&)>;
 struct EventCallbackHolder
@@ -360,7 +329,7 @@ struct EventCallbackHolder
 	double time;
 	CallbackEventFuncType callback;
 	Frame* frame;
-	// SavedTuple extra;
+	const char* letter;
 	
 	EventCallbackHolder(const CallbackEventFuncType& func, Frame* f, EventEnum event);
 };
@@ -385,6 +354,7 @@ class GAME_API Frame
 {
 	// Sockets
 	private:
+		TArray<EventEnum> RegisteredEvents;
 		// typedef void (*FuncType)(Frame*);
 		// typedef std::unique_ptr<Frame*> Frame*;
 		
@@ -516,81 +486,81 @@ class GAME_API Frame
 		TArray<TextWidget*> TextList;
 		TArray<Point*> PointList;
 		
-    static const FString strataList[5];
-    
-    static TMap<FString, Strata> StrataMap;
-    // static TArray<FrameText> TextList;
+  	static const FString strataList[5];
+   
+  	static TMap<FString, Strata> StrataMap;
+   // static TArray<FrameText> TextList;
 		
 		void OnUpdate(FuncType func = nullptr);
-    
-    Frame();
-    ~Frame();
-    
+   
+	  Frame();
+	  ~Frame();
+   
 		/*--------------------------------------------------------------------------
 				Get functions
 		--------------------------------------------------------------------------*/
 		static int32 GetNumFrames();
 		
-    float GetWidth() const;
-    float GetHeight() const;
-    float GetSize() const;
-    float GetX() const;
-    float GetY() const;
-    float GetPosition() const;
-    float GetColorInt() const;
-    FLinearColor GetColor() const;
-    float GetAlpha() const;
-    float GetScale() const;
-    int32 GetLevel() const;
-    bool IsShown() const;
-    bool GetMouseOver() const;
-    bool GetMouseEnabled() const;
-    FString GetType() const;
-    FString GetStrata() const;
-    FString GetName() const;
-    FString GetUniqueID() const;
-    Frame* GetParent() const;
-    Anchors GetAnchorPoint() const;
+		float GetWidth() const;
+		float GetHeight() const;
+		float GetSize() const;
+		float GetX() const;
+		float GetY() const;
+		float GetPosition() const;
+		float GetColorInt() const;
+		FLinearColor GetColor() const;
+		float GetAlpha() const;
+		float GetScale() const;
+		int32 GetLevel() const;
+		bool IsShown() const;
+		bool GetMouseOver() const;
+		bool GetMouseEnabled() const;
+		FString GetType() const;
+		FString GetStrata() const;
+		FString GetName() const;
+		FString GetUniqueID() const;
+		Frame* GetParent() const;
+		Anchors GetAnchorPoint() const;
 		Frame* GetRelativeFrame() const;
-    Anchors GetRelativePoint() const;
+		Anchors GetRelativePoint() const;
 		    
 		/*--------------------------------------------------------------------------
 				Set functions
 		--------------------------------------------------------------------------*/
 		void SetEvent(EventEnum event, CallbackEventFuncType func);
-		
+
 		void Show();
 		void Hide();
-    void SetWidth(float nW);
-    void SetHeight(float nH);
-    void SetSize(float nW, float nH);
-    void SetX(float nX);
-    void SetY(float nY);
-    void SetPosition(float nX, float nY);
-    void SetScale(float nScale);
-    void SetName(FString nName);
-    void SetType(FString nType);
-    void SetShown(bool nVisibility);
-    void SetMouseOver(bool nMouseOver);
-    void SetMouseEnabled(bool nMouseEnabled);
-    void SetColor(float nR = 1.f, float nG = 1.f, float nB = 1.f, float nA = 1.f);
-    void SetAlpha(float nA = 1.f);
-    void SetLevel(int32 nLevel);
-    void SetStrata(FString nStrata);
-    void SetParent(Frame* nParent);
+		void SetWidth(float nW);
+		void SetHeight(float nH);
+		void SetSize(float nW, float nH);
+		void SetX(float nX);
+		void SetY(float nY);
+		void SetPosition(float nX, float nY);
+		void SetScale(float nScale);
+		void SetName(FString nName);
+		void SetType(FString nType);
+		void SetShown(bool nVisibility);
+		void SetMouseOver(bool nMouseOver);
+		void SetMouseEnabled(bool nMouseEnabled);
+		void SetColor(float nR = 1.f, float nG = 1.f, float nB = 1.f, float nA = 1.f);
+		void SetAlpha(float nA = 1.f);
+		void SetLevel(int32 nLevel);
+		void SetStrata(FString nStrata);
+		void SetParent(Frame* nParent);
 		void SetPoint(Anchors nAnchor = Anchors::CENTER, Frame* nRelativeTo = nullptr, Anchors nRelative = Anchors::CENTER, float nX = 0, float nY = 0);
 		
 		/*--------------------------------------------------------------------------
-				Misc frame functions
+			Misc frame functions
 		--------------------------------------------------------------------------*/
 		static void GenerateUniqueID(char* const ID, const int32 length);
-    static Frame* CreateFrame(FString nType, FString nName, FString nStrata, int32 nLevel);
+		static Frame* CreateFrame(FString nType, FString nName, FString nStrata, int32 nLevel);
 		void DeleteFrame();
-    static void IterateOnUpdateList();
+		static void IterateOnUpdateList();
 		static void Fire(EventEnum event);
 		void FireToFrame(EventEnum event);
 		static Frame* FindFrame(FString searchString);
-		
+
 		TextureWidget* CreateTexture();
 		TextWidget* CreateText();
 };

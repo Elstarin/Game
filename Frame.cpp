@@ -55,6 +55,9 @@ Frame::~Frame()
   frameCount--;
 }
 
+/*------------------------------------------------------------------------------
+		EventCallbackHolder constructor
+------------------------------------------------------------------------------*/
 EventCallbackHolder::EventCallbackHolder(const CallbackEventFuncType& func, Frame* f, EventEnum event) :
   callback(func), // Set the callback to the passed function
   frame(f), // Set the pointer to the frame
@@ -129,7 +132,30 @@ void Frame::DeleteFrame()
   // Take it out of the frame list
   FrameList.Remove(this);
   FrameList.Shrink();
-  this->OnUpdate(); // Set it to nullptr
+  // this->OnUpdate(); // Set it to nullptr
+  
+  // Run through every event that has been registered for this frame
+  for (const auto& event : RegisteredEvents)
+  {
+    // Iterate through every holder for this event
+    int32 count = 0;
+    for (const auto& holder : EventMap[event])
+    {
+      // Search for the holder that belongs to this particular frame
+      if (holder->frame == this)
+      {
+        EventMap[event].RemoveAt(count); // Remove the holder from the list of holders
+        break; // Move on to the next event in the RegisteredEvents array
+      }
+      
+      count++;
+    }
+    
+    EventMap[event].Shrink(); // Shrink the array for this particular event
+  }
+  
+  RegisteredEvents.Empty(); // Empty the array
+  RegisteredEvents.Shrink();
 }
 
 class FrameActor : public Frame
@@ -189,17 +215,13 @@ void Frame::SetEvent(EventEnum event, CallbackEventFuncType func)
   if (!EventMap.Contains(event))
   {
     TArray<CallbackEventUPtrType> arr; // Create a new array of unique pointers
-    // TArray<CallbackEventUPtrType> arr;
     EventMap.Emplace(event, std::move(arr)); // Add it to the map
-    // EventMap.Emplace(event, arr); // Add it to the map
   }
   else
   {
-    // Iterate through every holder for this event
-    for (auto& holder : EventMap[event])
+    for (auto& holder : EventMap[event]) // Iterate through every holder for this event
     {
-      // Check if this frame is already registered for this event
-      if (holder->frame == this)
+      if (holder->frame == this) // Check if this frame is already registered for this event
       {
         holder->callback = func; // Replace the old callback with the new one
         return; // Return to avoid creating and adding another holder object for the same frame
@@ -207,10 +229,11 @@ void Frame::SetEvent(EventEnum event, CallbackEventFuncType func)
     }
   }
   
+  RegisteredEvents.Emplace(event);
+  
   // Create a unique_ptr callback holder and pass the values to its constructor
   EventMap[event].Emplace(std::make_unique<EventCallbackHolder>(func, this, event));
 }
-
 /*------------------------------------------------------------------------------
 		Special script events
 ------------------------------------------------------------------------------*/

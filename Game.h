@@ -43,5 +43,7 @@ DEFINE_LOG_CATEGORY_STATIC(L, Warning, All);
 #include "TimerSystem.h"
 #include "Frame.h"
 #include "UtilitySystem.h"
+#include "GameGameMode.h"
+#include "GameCharacter.h"
 
 #endif

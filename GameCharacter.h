@@ -10,6 +10,9 @@ class AGameCharacter : public ACharacter
 	GENERATED_BODY()
 
 	private:
+		// APlayerController* ThePlayerPtr;
+		// AGameCharacter& ThePlayerPtr;
+		
 		/** Camera boom positioning the camera behind the character */
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class USpringArmComponent* CameraBoom;
@@ -22,6 +25,8 @@ class AGameCharacter : public ACharacter
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Projectile, meta = (AllowPrivateAccess = "true"))
 		class USphereComponent* ProjectileSphere;
 	public:
+		static APlayerController* ThePlayerController;
+		static APlayerController* GetPlayer();
 		// Constructor for AFPSCharacter
 		AGameCharacter(const FObjectInitializer& ObjectInitializer);
 		
@@ -121,6 +126,9 @@ class AGameCharacter : public ACharacter
 		// End of APawn interface
 
 	public:
+		// FORCEINLINE APlayerController* GetPlayerChar() const { return GetWorld()->GetOwningPlayerController(); };
+		/** Returns FollowCamera subobject **/
+		FVector GetPlayerLocation();
 		/** Returns CameraBoom subobject **/
 		FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; };
 		/** Returns FollowCamera subobject **/

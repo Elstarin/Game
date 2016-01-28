@@ -26,8 +26,11 @@ void AGameGameMode::StartPlay()
 
   StartMatch();
 	
-	UWorld* const World = GetWorld();
-	UtilitySystem::profileCode(World);
+	TimerSystem::SetTimer(1.0f, [&]()
+	{
+		UWorld* const World = GetWorld();
+		UtilitySystem::profileCode(World);
+	});
 }
 
 void AGameGameMode::Tick(float DeltaSeconds)

@@ -204,6 +204,8 @@ extern inline FString convert(AActor* x);
 extern inline FString convert(void* x);
 extern inline FString convert(Frame& x);
 extern inline FString convert(Frame* x);
+extern inline FString convert(FBox& x);
+extern inline FString convert(FBox* x);
 
 // static FString printStr;
 extern FString printStr;

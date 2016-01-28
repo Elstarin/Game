@@ -170,8 +170,29 @@ void AMagic::BeginPlay()
 	Super::BeginPlay();
 	ParticleToggle();
 	
+	// auto PC = AGameCharacter::GetOwningPlayerController();
+	// auto PC = AGameCharacter::GetPlayerChar();
+	
 	frame = Frame::CreateFrame("Actor", "MagicFrame", "BACKGROUND", 0);
 	frame->Hide();
+	
+	frame->SetEvent(UPDATE, [&](const auto& obj)
+	{
+		static FVector location;
+		static FVector playerLocation;
+		
+		location = GetActorLocation();
+		ACharacter* myCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+		playerLocation = myCharacter->GetActorLocation();
+		
+		// playerLocation = AGameCharacter::GetPlayer()->GetActorLocation();
+		// playerLocation = PC->GetPlayerLocation();
+		// playerLocation = AGameCharacter::GetActorLocation();
+		
+		auto distance = FVector::Dist(location, playerLocation);
+		
+		// print(distance);
+	});
 	
 	// auto lambda = [&](auto f){
 	// 	print("Lambda", GetActorLocation());

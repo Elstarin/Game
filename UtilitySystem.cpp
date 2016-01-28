@@ -171,6 +171,7 @@ void CreateFrameList()
 void UtilitySystem::profileCode(UWorld* const World)
 {
   if (!false) return; // If false, don't profile. If true, do profile.
+  if (!FIRST_RUN) return;
   
   int32 loopNum = 1;
   
@@ -180,30 +181,25 @@ void UtilitySystem::profileCode(UWorld* const World)
   // loopNum = 10000; // 10k
   // loopNum = 100000; // 100k
   // loopNum = 500000; // 500k
-  loopNum = 1000000; // 1m
+  // loopNum = 1000000; // 1m
   // loopNum = 10000000; // 10m
   // loopNum = 100000000; // 100m
   
-  for (int32 i = 1; i <= 1000; i++)
-  {
-    auto frame = Frame::CreateFrame("", "", "BACKGROUND", 0);
-    
-    frame->SetEvent(EventEnum::MOUSE_LEFT_CLICK_DOWN, [&](const auto& obj)
-    {
-    
-    });
-  }
+  // for (int32 i = 1; i <= 1000; i++)
+  // {
+  //   auto frame = Frame::CreateFrame("", "", "BACKGROUND", 0);
+  //
+  //   frame->SetEvent(EventEnum::TESTING_EVENT, [](const auto& obj)
+  //   {
+  //
+  //   });
+  // }
   
   // Code to test
   double start = TimerSystem::GetTime();
   for (int32 i = 1; i <= loopNum; i++)
   {
-    // for (int32 n = 1; n <= 1000; n++)
-    // {
-    //   t.callback(&t);
-    // }
-    // Frame::Fire(EventEnum::GAME_PAUSE);
-    Frame::Fire(EventEnum::MOUSE_LEFT_CLICK_DOWN);
+    // Frame::Fire(EventEnum::UPDATE);
   }
   double stop = TimerSystem::GetTime();
   
@@ -341,4 +337,14 @@ inline FString convert(Frame* x)
 inline FString convert(void* x)
 {
   return "Pointer: " + FString::Printf(TEXT("%p"), x);
+}
+
+inline FString convert(FBox& x)
+{
+  return x.GetSize().ToString();
+}
+
+inline FString convert(FBox* x)
+{
+  return x->GetSize().ToString();
 }
